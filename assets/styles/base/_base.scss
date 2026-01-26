@@ -1,0 +1,141 @@
+html {
+	scroll-behavior: smooth;
+	background-color: var(--page-bg);
+	// scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+body {
+	background-color: var(--page-bg);
+	color: var(--main-color);
+	font-family: var(--font-main);
+	letter-spacing: -0.01em;
+	-webkit-overflow-scrolling: touch;
+
+	// text-wrap: balance;
+
+	&.loaded {
+		overflow: unset;
+		height: auto;
+	}
+}
+
+// Dark mode overflow elements
+@media (prefers-color-scheme: dark) {
+	* {
+		&::-webkit-scrollbar {
+			-webkit-appearance: none;
+			width: 100%;
+			background: #cfd9ef;
+			height: 4px;
+			border-radius: 4px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: #cfd9ef;
+			border-radius: 2px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: #11437a;
+			border-radius: 4px;
+
+			&:hover {
+				background: #0a2c5a;
+			}
+
+			&:active {
+				background: #0a2c5a;
+			}
+		}
+		&::-webkit-scrollbar-corner {
+			background: #cfd9ef;
+		}
+	}
+}
+
+// img {
+// 	// display: block;
+// 	// width: 100%;
+// }
+
+code {
+	background-color: #e9f1f6;
+	padding: 0.2rem;
+	border-radius: 4px;
+}
+
+pre.code {
+	overflow-x: auto;
+	background-color: #e9f1f6;
+	padding: 1rem;
+	border-radius: 4px;
+}
+.main {
+	margin-top: 124px;
+	transition: margin-top 0.3s ease-in;
+	// overflow: hidden;
+	@include ultrahd {
+		margin-top: 144px;
+	}
+}
+
+body.promo-hidden .main {
+	margin-top: 94px;
+	@include ultrahd {
+		margin-top: 114px;
+	}
+}
+.container {
+	margin: 0 auto;
+	padding: 0 var(--container-padding);
+
+	max-width: calc(1720px + 2 * var(--container-padding));
+	width: 100%;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	z-index: 299;
+	width: 100%;
+	background: rgba(0, 0, 0, 0.32);
+
+	opacity: 0;
+	pointer-events: none;
+	user-select: none;
+
+	transition: opacity 0.1s ease-in-out;
+
+	&_visible {
+		opacity: 1;
+		pointer-events: auto;
+		user-select: auto;
+		transition: opacity 0.1s ease-in-out;
+	}
+}
+
+.modal-opened {
+	overflow: hidden;
+}
+
+.text > a {
+	color: currentColor;
+}
+
+// Отступ для скролла по якорям
+[id] {
+	scroll-margin-top: 124px;
+	@include ultrahd {
+		scroll-margin-top: 144px;
+	}
+}
+
+body.promo-hidden [id] {
+	scroll-margin-top: 94px;
+	@include ultrahd {
+		scroll-margin-top: 114px;
+	}
+}

@@ -1,0 +1,53 @@
+:root {
+	color-scheme: light !important;
+	--container-padding: 20px;
+	@include tablet {
+		--container-padding: 40px;
+	}
+	@include ultrahd {
+		--container-padding: 50px;
+	}
+	// font family
+	--font-main: 'Inter', sans-serif;
+
+	// bg color
+	--page-bg: #ffffff;
+	--main-bg: #11437a;
+	--main-bg-light: rgba(62, 103, 189, 0.35);
+	--primary-bg: #f7f9ff;
+	--accent-bg: #f7f7f7;
+
+	// text color
+	--main-color: rgba(16, 16, 17, 0.7);
+	--main-color-dimmer: rgba(38, 38, 38, 0.6);
+	--primary-color: #2e4169;
+	--primary-color-bright: #082f83;
+	--accent-color: #ffffff;
+	--accent-color-dimmer: rgba(255, 255, 255, 0.7);
+	--secondary-color: #101011;
+	--black-color: #000000;
+	--tertiary-color: #222222;
+
+	--graphic-main: #cfd9ef;
+
+	// // scrollbar colors
+	--scrollbar-track: #cfd9ef;
+	--scrollbar-thumb: #11437a;
+	--scrollbar-thumb-hover: #0a2c5a;
+
+	// dark mode scrollbar colors
+	--scrollbar-track-dark: #cfd9ef;
+	--scrollbar-thumb-dark: #11437a;
+	--scrollbar-thumb-active-dark: #0a2c5a;
+
+	// inner indent
+	--space-xs: 10px;
+	--space-sm: 20px;
+	--space-md: 30px;
+	--space-lg: 40px;
+	--space-xl: 60px;
+
+	--space-section-sm: 100px;
+	--space-section-md: 120px;
+	--space-section-lg: 140px;
+}

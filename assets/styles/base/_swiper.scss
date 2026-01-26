@@ -1,0 +1,29 @@
+.swiper {
+	&-pagination {
+		position: static;
+		display: flex;
+		gap: var(--space-xs);
+	}
+	&-pagination-bullet {
+		height: 100%;
+		background: transparent;
+		color: var(--primary-color);
+		opacity: 1;
+		font-size: 14px;
+		line-height: 100%;
+		border-radius: 0;
+		position: relative;
+		transition: all 0.2s ease;
+		border-bottom: 1px solid transparent;
+		font-weight: 400;
+	}
+	&-pagination-bullet-active {
+		font-weight: 600;
+		color: var(--primary-color);
+		border-bottom: 1px solid currentColor;
+	}
+	&-no-swiping {
+		-ms-touch-action: pan-x pan-y;
+		touch-action: auto !important;
+	}
+}
