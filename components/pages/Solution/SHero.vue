@@ -1,13 +1,29 @@
 <script setup lang="ts">
-const descList = [
+interface SHeroProps {
+	title?: string | string[]
+	descriptions?: string[]
+}
+
+const fallbackDescList = [
 	'Трубный завод ПИК производит трубы ПИКПАЙП из сертифицированных трубных марок полиэтилена типов ПЭ100, ПЭ100+, ПЭ112 и сверхпрочного ПЭ100RC. В производственной линейке выпускаются трубы ПИКПАЙП в полиуретановой теплоизоляции (ППУ) с различными типами защитной оболочки для надёжной защиты систем водоснабжения от промерзания в условиях холодного климата:<br />– с оцинкованной стальной оболочкой (ОЦ),<br />– с полиэтиленовой оболочкой (ПЭ).<br />Диаметр Ø 63–800 мм, SDR 6–41.',
 	'Трубы выпускаются в соответствии с ГОСТ 18599-2001 с изменением №1,2, ГОСТ Р 70628.2—2023, а также ТУ 22.21.21-003-02986689-2024. Трубы предназначены для следующих способов прокладки: траншейной, бестраншейной, прокладки без песчаной подсыпки (в том числе методом горизонтально-направленного бурения). Поставляются прямыми отрезками длиной 12 м, 13 м или другой длины по согласованию с заказчиком, а также в бухтах (для труб диаметром до 110 мм).',
 ]
 
+const props = defineProps<SHeroProps>()
+
+const resolvedTitleLines = computed(() => {
+	const title = props.title ?? ['Холодное', 'водоснабжение']
+	return Array.isArray(title) ? title : [title]
+})
+
+const resolvedDescriptions = computed(() => {
+	return props.descriptions !== undefined ? props.descriptions : fallbackDescList
+})
+
 const normalizeNbsp = (s: string) => s.replaceAll('&nbsp;', '\u00A0')
 const splitByBr = (s: string) => normalizeNbsp(s).split(/<br\s*\/?\s*>/i)
 
-const descLines = computed(() => descList.map(t => splitByBr(t)))
+const descLines = computed(() => resolvedDescriptions.value.map(t => splitByBr(t)))
 </script>
 
 <template>
@@ -16,7 +32,13 @@ const descLines = computed(() => descList.map(t => splitByBr(t)))
 			<div class="s-hero">
 				<div class="s-hero__title">
 					<custom-title class="s-hero__title--item" tag="h1"
-						>Холодное <br />водоснабжение</custom-title
+						><template
+							v-for="(line, index) in resolvedTitleLines"
+							:key="`t-${index}`"
+						>
+							{{ line }}
+							<br v-if="index < resolvedTitleLines.length - 1" />
+						</template></custom-title
 					>
 				</div>
 				<div class="s-hero__image"></div>

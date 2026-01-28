@@ -1,39 +1,37 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+interface TableFeatureProps {
+	titles: string[]
+	dropdowns?: Array<string[] | null>
+}
+
+const props = defineProps<TableFeatureProps>()
+
+const resolvedTitles = computed(() => {
+	if (props.titles.length >= 6) return props.titles.slice(0, 6)
+	return props.titles.concat(Array(6 - props.titles.length).fill(''))
+})
+
+const splitLines = (value: string) => {
+	return value.split('\n').map(item => item.trim()).filter(Boolean)
+}
+
+const resolvedDropdowns = computed(() => {
+	const list = props.dropdowns || []
+	if (list.length >= 6) return list.slice(0, 6)
+	return list.concat(Array(6 - list.length).fill(null))
+})
+</script>
 
 <template>
 	<div class="table-feature">
 		<div class="table-feature__caption">Наименование:</div>
-		<div class="table-feature__wrap">Назначение<br />изделия:</div>
-		<div class="table-feature__wrap">ГОСТ<br />изделия:</div>
-		<div class="table-feature__wrap">ТУ<br />изделия:</div>
-		<div class="table-feature__wrap">Материал<br />изделия:</div>
-		<div class="table-feature__wrap">
-			Диаметр изделия:
-			<Dropdown
-				:list="[
-					'63',
-					'80',
-					'110',
-					'120',
-					'130',
-					'160',
-					'200',
-					'240',
-					'400',
-					'800',
-				]"
-			/>
-		</div>
-		<div class="table-feature__wrap">
-			SDR изделия:
-			<Dropdown :list="['9', '11', '13.6', '17', '21', '26', '41']" />
-		</div>
-		<div class="table-feature__wrap">Кол-во слоев<br />изделия:</div>
-		<div class="table-feature__wrap table-feature__wrap_additional">
-			Доп характеристика<br />изделия:
-		</div>
-		<div class="table-feature__wrap table-feature__wrap_additional">
-			Доп характеристика<br />изделия:
+		<div class="table-feature__wrap" v-for="(title, idx) in resolvedTitles" :key="idx">
+			<template v-if="title">
+				<span v-for="(line, lineIdx) in splitLines(title)" :key="lineIdx">
+					{{ line }}<br v-if="lineIdx < splitLines(title).length - 1" />
+				</span>
+			</template>
+			<Dropdown v-if="resolvedDropdowns[idx]" :list="resolvedDropdowns[idx] || []" />
 		</div>
 	</div>
 </template>
@@ -45,7 +43,7 @@
 	// grid-template-columns: minmax(224px, 1fr);
 	width: 224px;
 	flex: 0 0 224px;
-	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px) repeat(1, 122px);
+	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
 	&__caption,
 	&__wrap {
 		padding: 26px;
@@ -68,9 +66,6 @@
 		justify-content: flex-end;
 		align-items: flex-start;
 		gap: 12px;
-		&_additional {
-			display: none;
-		}
 	}
 
 	// &_extended {

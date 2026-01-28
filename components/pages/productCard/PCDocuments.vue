@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const slides = [
+import type { DocumentSlideProps } from '~/components/slides/DocumentSlide.vue'
+
+interface PCDocumentsProps {
+	slides?: DocumentSlideProps[]
+}
+
+const fallbackSlides: DocumentSlideProps[] = [
 	{
 		text: [
 			'Методическое пособие ',
@@ -49,6 +55,12 @@ const slides = [
 		size: '10',
 	},
 ]
+
+const props = defineProps<PCDocumentsProps>()
+
+const resolvedSlides = computed(() => {
+	return props.slides && props.slides.length > 0 ? props.slides : fallbackSlides
+})
 </script>
 
 <template>
@@ -62,7 +74,7 @@ const slides = [
 				<CustomTitle class="p-c-documents__title" tag="h2" mode="xl"
 					>Документы для скачивания</CustomTitle
 				>
-				<document-slider :slides="slides" mode="wide" />
+				<document-slider :slides="resolvedSlides" mode="wide" />
 			</BorderLine>
 		</div>
 	</div>

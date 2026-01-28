@@ -8,113 +8,111 @@ interface Caption {
 }
 export interface ProductTableCardProps {
 	caption: Caption
-	purpose: string[]
-	gost: string[]
-	specification: string[]
-	material: string[]
-	diameter: string[][]
-	sdr: string[][]
-	layersAmount: string[]
-	additionalCharacteristic1: string[]
-	additionalCharacteristic2: string[]
+	rows?: string[][][]
+	rowLinks?: string[][][]
+	clickableRows?: number[]
+	purpose?: string[]
+	gost?: string[]
+	specification?: string[]
+	material?: string[]
+	diameter?: string[][]
+	sdr?: string[][]
+	layersAmount?: string[]
+	additionalCharacteristic1?: string[]
+	additionalCharacteristic2?: string[]
 }
 
-const {
-	caption,
-	purpose,
-	gost,
-	specification,
-	material,
-	diameter,
-	sdr,
-	layersAmount,
-	additionalCharacteristic1,
-	additionalCharacteristic2,
-} = defineProps<ProductTableCardProps>()
+const props = defineProps<ProductTableCardProps>()
+
+const toLines = (value?: string[] | string[][]) => {
+	if (!value) return []
+	if (Array.isArray(value) && value.length > 0 && Array.isArray(value[0])) {
+		return (value as string[][]).map(line => line.filter(Boolean))
+	}
+	return (value as string[]).map(item => [item])
+}
+
+const resolvedRows = computed(() => {
+	if (props.rows && props.rows.length > 0) {
+		return props.rows.slice(0, 6)
+	}
+	const rows = [
+		toLines(props.purpose),
+		toLines(props.gost),
+		toLines(props.specification),
+		toLines(props.material),
+		toLines(props.diameter),
+		toLines(props.sdr),
+	]
+	if (rows.length >= 6) return rows.slice(0, 6)
+	return rows.concat(Array(6 - rows.length).fill([]))
+})
+
+const resolvedClickableRows = computed(() => {
+	if (props.clickableRows && props.clickableRows.length > 0) {
+		return props.clickableRows
+	}
+	return [4, 5]
+})
+
+const resolvedRowLinks = computed(() => {
+	const rows = resolvedRows.value
+	const links = props.rowLinks || []
+	return rows.map((row, rowIndex) => {
+		const rowLinks = links[rowIndex] || []
+		return row.map((line, lineIdx) => {
+			const lineLinks = rowLinks[lineIdx] || []
+			return line.map((_, valueIdx) => lineLinks[valueIdx] || '')
+		})
+	})
+})
 </script>
 
 <template>
 	<div class="product-table-card">
 		<div class="product-table-card__caption">
-			<Image class="product-table-card__caption--img" v-bind="caption.image" />
+			<Image class="product-table-card__caption--img" v-bind="props.caption.image" />
 			<Text
 				class="product-table-card__caption--title"
 				tag="a"
-				:href="caption.href"
+				:href="props.caption.href"
 				weight="medium"
 				size="md"
 				line-height="md"
 				design="primary"
 			>
-				{{ caption.title }}
+				{{ props.caption.title }}
 			</Text>
 		</div>
-		<div class="product-table-card__wrap">
-			<template v-for="(value, idx) in purpose" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap">
-			<template v-for="(value, idx) in gost" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap">
-			<template v-for="(value, idx) in specification" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap">
-			<template v-for="(value, idx) in material" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap product-table-card__wrap_diameter">
+		<div
+			class="product-table-card__wrap"
+			v-for="(row, rowIndex) in resolvedRows"
+			:key="`row-${rowIndex}`"
+		>
 			<span
 				class="product-table-card__wrap--line"
-				v-for="(line, idx) in diameter"
-				:key="`l-${idx}`"
+				v-for="(line, lineIdx) in row"
+				:key="`line-${lineIdx}`"
 			>
 				<span
 					class="product-table-card__wrap--line_word"
-					v-for="(value, index) in line"
-					:key="`v-${index}`"
+					:class="{
+						'product-table-card__wrap--line_word-clickable':
+							resolvedClickableRows.includes(rowIndex),
+					}"
+					v-for="(value, valueIdx) in line"
+					:key="`value-${valueIdx}`"
 				>
-					{{ value }}
+					<a
+						v-if="resolvedRowLinks[rowIndex]?.[lineIdx]?.[valueIdx]"
+						:href="resolvedRowLinks[rowIndex]?.[lineIdx]?.[valueIdx]"
+					>
+						{{ value }}
+					</a>
+					<template v-else>{{ value }}</template>
 				</span>
 				<br />
 			</span>
-		</div>
-		<div class="product-table-card__wrap product-table-card__wrap_sdr">
-			<span
-				class="product-table-card__wrap--line"
-				v-for="(line, idx) in diameter"
-				:key="`l-${idx}`"
-			>
-				<span
-					class="product-table-card__wrap--line_word"
-					v-for="(value, index) in line"
-					:key="`v-${index}`"
-				>
-					{{ value }}
-				</span>
-				<br />
-			</span>
-		</div>
-		<div class="product-table-card__wrap product-table-card__wrap">
-			<template v-for="(value, idx) in layersAmount" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap product-table-card__wrap_additional">
-			<template v-for="(value, idx) in additionalCharacteristic1" :key="idx">
-				{{ value }}<br />
-			</template>
-		</div>
-		<div class="product-table-card__wrap product-table-card__wrap_additional">
-			<template v-for="(value, idx) in additionalCharacteristic2" :key="idx">
-				{{ value }}<br />
-			</template>
 		</div>
 	</div>
 </template>
@@ -123,7 +121,7 @@ const {
 .product-table-card {
 	display: grid;
 	grid-template-columns: minmax(224px, 1fr);
-	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px) repeat(1, 122px);
+	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
 	&__caption,
 	&__wrap {
 		display: flex;
@@ -147,23 +145,23 @@ const {
 		line-height: 125%;
 		text-align: center;
 		color: rgba(34, 34, 34, 0.7);
-		&_additional {
-			display: none;
+		.product-table-card__wrap--line {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: var(--space-xs);
 		}
-		&_sdr,
-		&_diameter {
-			.product-table-card__wrap--line {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: var(--space-xs);
-
-				&_word {
-					text-decoration: underline;
-					text-decoration-skip-ink: none;
-					color: #222;
-				}
+		.product-table-card__wrap--line_word {
+			color: #222;
+			a {
+				color: inherit;
+				text-decoration: inherit;
 			}
+		}
+		.product-table-card__wrap--line_word-clickable {
+			text-decoration: underline;
+			text-decoration-skip-ink: none;
+			cursor: pointer;
 		}
 	}
 	// &_extended {

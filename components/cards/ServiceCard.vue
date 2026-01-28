@@ -6,35 +6,35 @@ interface ServiceCardProps {
 	icon: IconProps
 	title: string[]
 	href: string
-	isWaterSupply?: boolean
+	links?: Array<{ title: string; href: string }>
 }
 
 const props = defineProps<ServiceCardProps>()
 
 const isExpanded = ref(false)
+const hasLinks = computed(() => (props.links || []).length > 0)
+const hrefValue = computed(() => (props.href && props.href.length > 0 ? props.href : undefined))
 
 const handleMouseEnter = () => {
-	if (props.isWaterSupply) {
+	if (hasLinks.value) {
 		isExpanded.value = true
 	}
 }
 
 const handleMouseLeave = () => {
-	if (props.isWaterSupply) {
+	if (hasLinks.value) {
 		isExpanded.value = false
 	}
 }
 
 const handleClick = (e: Event) => {
-	if (props.isWaterSupply) {
+	if (hasLinks.value) {
 		const target = e.target as HTMLElement
-		// Если клик был на ссылку внутри water-supply, не обрабатываем
 		if (target.closest('.service-card__water-link')) {
 			return
 		}
 		e.preventDefault()
 		e.stopPropagation()
-		// Тоглим состояние развернутости
 		isExpanded.value = !isExpanded.value
 	}
 }
@@ -47,16 +47,13 @@ const handleLinkClick = (e: Event) => {
 <template>
 	<a
 		class="service-card"
-		:class="{ 'service-card--expanded': isExpanded && props.isWaterSupply }"
-		:href="props.isWaterSupply ? undefined : props.href"
+		:class="{ 'service-card--expanded': isExpanded && hasLinks }"
+		:href="hasLinks ? undefined : hrefValue"
 		@mouseenter="handleMouseEnter"
 		@mouseleave="handleMouseLeave"
 		@click.stop="handleClick"
 	>
-		<div
-			v-if="!isExpanded || !props.isWaterSupply"
-			class="service-card__content"
-		>
+		<div v-if="!isExpanded || !hasLinks" class="service-card__content">
 			<Icon class="service-card__image" v-bind="props.icon" />
 			<div class="service-card__title">
 				<Text
@@ -75,39 +72,28 @@ const handleLinkClick = (e: Event) => {
 		</div>
 		<div v-else class="service-card__water-supply" @click.stop>
 			<div class="service-card__water-supply--inner">
-				<a
-					class="service-card__water-link"
-					href="/piktube/solution"
-					@click="handleLinkClick"
-				>
-					<Text
-						tag="span"
-						size="xxl"
-						design="accent"
-						line-height="sm"
-						weight="medium"
-						:uppercase="true"
+				<template v-for="(link, index) in props.links" :key="link.href">
+					<a
+						class="service-card__water-link"
+						:href="link.href"
+						@click="handleLinkClick"
 					>
-						Горячее водоснабжение
-					</Text>
-				</a>
-				<div class="service-card__divider"></div>
-				<a
-					class="service-card__water-link"
-					href="/piktube/about"
-					@click="handleLinkClick"
-				>
-					<Text
-						tag="span"
-						size="xxl"
-						design="accent"
-						line-height="sm"
-						weight="medium"
-						:uppercase="true"
-					>
-						Холодное водоснабжение
-					</Text>
-				</a>
+						<Text
+							tag="span"
+							size="xxl"
+							design="accent"
+							line-height="sm"
+							weight="medium"
+							:uppercase="true"
+						>
+							{{ link.title }}
+						</Text>
+					</a>
+					<div
+						v-if="index < (props.links?.length || 0) - 1"
+						class="service-card__divider"
+					></div>
+				</template>
 			</div>
 		</div>
 		<Icon class="service-card__icon" name="base-arrow" />
@@ -152,7 +138,7 @@ const handleLinkClick = (e: Event) => {
 	&__water-link {
 		text-decoration: none;
 		color: inherit;
-		pointer-events: none;
+		pointer-events: auto;
 	}
 	&__divider {
 		height: 1px;

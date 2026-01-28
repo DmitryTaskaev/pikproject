@@ -2,67 +2,67 @@
 const dropdownList = [
 	{
 		title: 'Однослойная труба ПИКПАЙП',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП II',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП II',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП II',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП II',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 	{
 		title: 'Однослойная труба ПИКПАЙП ХАРД III',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 	},
 ]
 const searchText = ref('')

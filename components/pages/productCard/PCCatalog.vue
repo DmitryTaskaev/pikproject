@@ -1,5 +1,13 @@
 <script setup lang="ts">
-const titleList = [
+import type { PipeCardProps } from '~/components/cards/PipeCard.vue'
+
+interface PCCatalogProps {
+	title?: string
+	titleList?: string[]
+	cardList?: PipeCardProps[]
+}
+
+const fallbackTitleList = [
 	'Толщина стенки:',
 	'Марка стали:',
 	'ГОСТ/ТУ:',
@@ -7,7 +15,7 @@ const titleList = [
 	'Толщина изоляции:',
 	'd оболочки:',
 ]
-const cardList = [
+const fallbackCardList: PipeCardProps[] = [
 	{
 		image: { src: 'production/production-07-small', alt: 'Труба' },
 		name: 'Двухслойная труба ПНД SDR 11 ПИКПАЙП II D200',
@@ -51,6 +59,22 @@ const cardList = [
 		href: '#',
 	},
 ]
+
+const props = defineProps<PCCatalogProps>()
+
+const resolvedTitle = computed(
+	() => props.title || 'Другие варианты трубы ПНД SDR 11 ПИКПАЙП II',
+)
+const resolvedTitleList = computed(() => {
+	return props.titleList && props.titleList.length > 0
+		? props.titleList
+		: fallbackTitleList
+})
+const resolvedCardList = computed(() => {
+	return props.cardList && props.cardList.length > 0
+		? props.cardList
+		: fallbackCardList
+})
 </script>
 
 <template>
@@ -61,10 +85,13 @@ const cardList = [
 				position="top"
 				design="primary"
 			>
-				<CustomTitle class="p-c-catalog__title" tag="h2" mode="xl"
-					>Другие варианты трубы ПНД SDR 11 ПИКПАЙП II</CustomTitle
-				>
-				<pipes-list :title-list="titleList" :card-list="cardList" />
+				<CustomTitle class="p-c-catalog__title" tag="h2" mode="xl">
+					{{ resolvedTitle }}
+				</CustomTitle>
+				<pipes-list
+					:title-list="resolvedTitleList"
+					:card-list="resolvedCardList"
+				/>
 			</BorderLine>
 		</div>
 	</div>

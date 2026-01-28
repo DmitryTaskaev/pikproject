@@ -1,10 +1,21 @@
 <script setup lang="ts">
-const descList = [
+interface MeasureItem {
+	title: string
+	value: string
+}
+
+interface PPHeroProps {
+	title?: string | string[]
+	descriptions?: string[]
+	measures?: MeasureItem[]
+}
+
+const fallbackDescList = [
 	'Хозяйственно-питьевое водоснабжение, напорное водоотведение. Очень высокая термоустойчивость, простой способ прокладки, доступный практически всем, удобная для применения комбинированная система.',
 	'ПИК производит трубы в России — качественные отечественные трубы от российского производителя.',
 	'Чтобы заказать товар Труба 32х3 ГОСТ 8732-78 ст 20-ППМ-44,5 нажмите кнопку "Заказать". Если у Вас есть какие-либо вопросы, Вы можете заказать звонок.',
 ]
-const measures = [
+const fallbackMeasures = [
 	{
 		title: 'Толщина стенки:',
 		value: '1-3',
@@ -30,6 +41,21 @@ const measures = [
 		value: '120-1800',
 	},
 ]
+
+const props = defineProps<PPHeroProps>()
+
+const resolvedTitleLines = computed(() => {
+	const title = props.title ?? ['Однослойная труба', 'ПНД ПИКПАЙП']
+	return Array.isArray(title) ? title : [title]
+})
+
+const resolvedDescriptions = computed(() => {
+	return props.descriptions !== undefined ? props.descriptions : fallbackDescList
+})
+
+const resolvedMeasures = computed(() => {
+	return props.measures !== undefined ? props.measures : fallbackMeasures
+})
 </script>
 
 <template>
@@ -38,13 +64,18 @@ const measures = [
 			<div class="p-p-hero">
 				<div class="p-p-hero__title">
 					<custom-title class="p-p-hero__title--item" tag="h1">
-						Однослойная труба <br />ПНД ПИКПАЙП
+						<template
+							v-for="(line, index) in resolvedTitleLines"
+							:key="`t-${index}`"
+						>
+							{{ line }}<br v-if="index < resolvedTitleLines.length - 1" />
+						</template>
 					</custom-title>
 				</div>
 				<div class="p-p-hero__image"></div>
 				<div class="p-p-hero__desc">
 					<Text
-						v-for="(item, index) in descList"
+						v-for="(item, index) in resolvedDescriptions"
 						:key="index"
 						class="p-p-hero__desc--item"
 					>
@@ -53,7 +84,7 @@ const measures = [
 				</div>
 				<div class="p-p-hero__measures">
 					<div
-						v-for="(measure, idx) in measures"
+						v-for="(measure, idx) in resolvedMeasures"
 						:key="idx"
 						class="p-p-hero__measure"
 					>

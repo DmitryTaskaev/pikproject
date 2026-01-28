@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { SwiperSlide } from 'swiper/vue'
 
-const slides = [
+interface PCHeroSliderProps {
+	slides?: Array<{ image: { src: string; alt?: string } }>
+}
+
+const fallbackSlides = [
 	{
 		image: {
 			src: 'product-card/product-card-01',
@@ -21,6 +25,15 @@ const slides = [
 		},
 	},
 ]
+
+const props = withDefaults(defineProps<PCHeroSliderProps>(), {
+	slides: undefined,
+})
+
+const slides = computed(() => {
+	if (props.slides !== undefined) return props.slides
+	return fallbackSlides
+})
 </script>
 
 <template>

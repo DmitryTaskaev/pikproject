@@ -1,5 +1,12 @@
 <script setup lang="ts">
-const titleList = [
+import type { PipeCardProps } from '~/components/cards/PipeCard.vue'
+
+interface PSCListProps {
+	titleList?: string[]
+	slides?: PipeCardProps[][]
+}
+
+const fallbackTitleList = [
 	'Толщина стенки:',
 	'Марка стали:',
 	'ГОСТ/ТУ:',
@@ -7,7 +14,7 @@ const titleList = [
 	'Толщина изоляции:',
 	'd оболочки:',
 ]
-const slides = [
+const fallbackSlides: PipeCardProps[][] = [
 	[
 		{
 			image: { src: 'production/production-07-small', alt: 'Труба' },
@@ -185,13 +192,23 @@ const slides = [
 		},
 	],
 ]
+
+const props = defineProps<PSCListProps>()
+
+const resolvedTitleList = computed(() => {
+	return props.titleList !== undefined ? props.titleList : fallbackTitleList
+})
+
+const resolvedSlides = computed(() => {
+	return props.slides !== undefined ? props.slides : fallbackSlides
+})
 </script>
 
 <template>
 	<div class="p-s-c-list">
 		<div class="container">
 			<div class="p-s-c-list__container">
-				<PipesList :title-list="titleList" :slides="slides" />
+				<PipesList :title-list="resolvedTitleList" :slides="resolvedSlides" />
 			</div>
 		</div>
 	</div>

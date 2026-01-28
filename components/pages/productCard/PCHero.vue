@@ -1,5 +1,17 @@
 <script setup lang="ts">
-const detailsList = [
+interface PCHeroDetail {
+	title: string
+	value: string
+}
+
+interface PCHeroProps {
+	title?: string
+	application?: string
+	details?: PCHeroDetail[]
+	slides?: Array<{ image: { src: string; alt?: string } }>
+}
+
+const fallbackDetails = [
 	{
 		title: 'Толщина стенки:',
 		value: '3',
@@ -25,6 +37,21 @@ const detailsList = [
 		value: '121',
 	},
 ]
+
+const props = defineProps<PCHeroProps>()
+
+const resolvedTitle = computed(
+	() => props.title || 'Двухслойная труба ПНД SDR 11 ПИКПАЙП II D200',
+)
+const resolvedApplication = computed(
+	() =>
+		props.application ||
+		'Применяются в системах водоснабжения и водоотведения, а также для технических трубопроводов с повышенными требованиями к прочности и визуальному контролю протока.',
+)
+const resolvedDetails = computed(() => {
+	return props.details !== undefined ? props.details : fallbackDetails
+})
+const resolvedSlides = computed(() => props.slides || [])
 </script>
 
 <template>
@@ -33,11 +60,11 @@ const detailsList = [
 			<div class="p-c-hero__container">
 				<div class="p-c-hero__title">
 					<CustomTitle class="p-c-hero__title--item" tag="h1" mode="xl">
-						Двухслойная труба ПНД SDR 11 ПИКПАЙП II D200
+						{{ resolvedTitle }}
 					</CustomTitle>
 				</div>
 				<div class="p-c-hero__slider">
-					<PCHeroSlider />
+					<PCHeroSlider :slides="resolvedSlides" />
 				</div>
 				<BorderLine class="p-c-hero__content" position="top" design="primary">
 					<div class="p-c-hero__content--wrap">
@@ -51,9 +78,7 @@ const detailsList = [
 								Область применения
 							</Text>
 							<Text class="p-c-hero__content--desc">
-								Применяются в системах водоснабжения и водоотведения, а также
-								для технических трубопроводов с повышенными требованиями к
-								прочности и визуальному контролю протока.
+								{{ resolvedApplication }}
 							</Text>
 						</div>
 						<Button
@@ -75,7 +100,7 @@ const detailsList = [
 					</div>
 					<div class="p-c-hero__details--list">
 						<BorderLine
-							v-for="(item, index) in detailsList"
+							v-for="(item, index) in resolvedDetails"
 							:key="index"
 							class="p-c-hero__details--item"
 							position="top"

@@ -1340,22 +1340,7 @@ const plugins = [
 _5occW4IHQMhMRTptKTHQ59jN0_fD0kpYs6CulKOQHw
 ];
 
-const assets = {
-  "/index.mjs": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": "\"181c3-r6nyDi7RSfMsTdfvkipWg3vPtlU\"",
-    "mtime": "2026-01-25T19:01:41.025Z",
-    "size": 98755,
-    "path": "index.mjs"
-  },
-  "/index.mjs.map": {
-    "type": "application/json",
-    "etag": "\"51c60-YlZzl2sUjC9x00SegOM2ZZNR9Lk\"",
-    "mtime": "2026-01-25T19:01:41.025Z",
-    "size": 334944,
-    "path": "index.mjs.map"
-  }
-};
+const assets = {};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -1934,6 +1919,7 @@ const _lazy_cNx_OB = () => Promise.resolve().then(function () { return mainTextI
 const _lazy_Y_iR_o = () => Promise.resolve().then(function () { return mainTrust_get$1; });
 const _lazy_tp4InG = () => Promise.resolve().then(function () { return menu_get$1; });
 const _lazy_u5tSI8 = () => Promise.resolve().then(function () { return news_get$1; });
+const _lazy_cE0OZD = () => Promise.resolve().then(function () { return products_get$1; });
 const _lazy_i7_xUx = () => Promise.resolve().then(function () { return services_get$1; });
 const _lazy_VRYqL9 = () => Promise.resolve().then(function () { return serviceSeo_get$1; });
 const _lazy_9i62zk = () => Promise.resolve().then(function () { return servicesTop_get$1; });
@@ -1960,6 +1946,7 @@ const handlers = [
   { route: '/api/mainTrust', handler: _lazy_Y_iR_o, lazy: true, middleware: false, method: "get" },
   { route: '/api/menu', handler: _lazy_tp4InG, lazy: true, middleware: false, method: "get" },
   { route: '/api/news', handler: _lazy_u5tSI8, lazy: true, middleware: false, method: "get" },
+  { route: '/api/products', handler: _lazy_cE0OZD, lazy: true, middleware: false, method: "get" },
   { route: '/api/services', handler: _lazy_i7_xUx, lazy: true, middleware: false, method: "get" },
   { route: '/api/serviceSeo', handler: _lazy_VRYqL9, lazy: true, middleware: false, method: "get" },
   { route: '/api/servicesTop', handler: _lazy_9i62zk, lazy: true, middleware: false, method: "get" },
@@ -2523,6 +2510,96 @@ const news_get = defineEventHandler(async (event) => {
 const news_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: news_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const resolveSectionCode = (section) => {
+  return section.CODE || section["~CODE"] || "";
+};
+const findByPath = (nodes, segments) => {
+  if (segments.length === 0) return null;
+  const [head, ...rest] = segments;
+  const match = nodes.find((node) => resolveSectionCode(node.SECTION) === head);
+  if (!match) return null;
+  if (rest.length === 0) return match;
+  return findByPath(match.CHILDREN || [], rest);
+};
+const products_get = defineEventHandler(async (event) => {
+  var _a, _b, _c, _d;
+  const config = useRuntimeConfig();
+  const headers = {};
+  if (config.apiKey) {
+    headers["X-API-KEY"] = config.apiKey;
+  }
+  const query = getQuery$1(event);
+  if (query.section_id) {
+    return await $fetch(`${config.apiBase}/products`, {
+      headers,
+      query: { section_id: query.section_id }
+    });
+  }
+  if (query.path) {
+    const rawPath = String(query.path).trim();
+    if (!rawPath) {
+      throw createError({ statusCode: 400, statusMessage: "Path is empty" });
+    }
+    const segments = rawPath.split("/").filter(Boolean);
+    const listResponse = await $fetch(
+      `${config.apiBase}/products`,
+      { headers }
+    );
+    const tree = ((_a = listResponse.data) == null ? void 0 : _a.TREE) || [];
+    const match = findByPath(tree, segments);
+    if (!((_b = match == null ? void 0 : match.SECTION) == null ? void 0 : _b.ID)) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Product section not found"
+      });
+    }
+    return await $fetch(`${config.apiBase}/products`, {
+      headers,
+      query: { section_id: match.SECTION.ID }
+    });
+  }
+  if (query.code) {
+    const normalizedCode = String(query.code).trim();
+    const listResponse = await $fetch(
+      `${config.apiBase}/products`,
+      { headers }
+    );
+    const tree = ((_c = listResponse.data) == null ? void 0 : _c.TREE) || [];
+    const walk = (nodes) => {
+      for (const node of nodes) {
+        const code = resolveSectionCode(node.SECTION);
+        if (code === normalizedCode) return node;
+        const childMatch = walk(node.CHILDREN || []);
+        if (childMatch) return childMatch;
+      }
+      return null;
+    };
+    const match = walk(tree);
+    if (!((_d = match == null ? void 0 : match.SECTION) == null ? void 0 : _d.ID)) {
+      if (/^\d+$/.test(normalizedCode)) {
+        return await $fetch(`${config.apiBase}/products`, {
+          headers,
+          query: { section_id: normalizedCode }
+        });
+      }
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Product section not found"
+      });
+    }
+    return await $fetch(`${config.apiBase}/products`, {
+      headers,
+      query: { section_id: match.SECTION.ID }
+    });
+  }
+  return await $fetch(`${config.apiBase}/products`, { headers });
+});
+
+const products_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: products_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const services_get = defineEventHandler(async (event) => {

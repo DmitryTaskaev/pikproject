@@ -1,12 +1,15 @@
 <script setup lang="ts">
-const servicesList = [
+import type { ProductSectionNode, ProductsTreeResponse } from '~/composables/products'
+import { resolveSectionCode } from '~/composables/products'
+
+const fallbackServicesList = [
 	{
 		icon: {
 			name: 'water-supply',
 			isSprite: false,
 		},
 		title: ['Водоснабжение'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -14,7 +17,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Водоотведение'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -22,7 +25,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Газораспределение'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -30,7 +33,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Защита кабеля'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -38,7 +41,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Изоляция ', 'в нефтегазовой ', 'отрасли'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -46,7 +49,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Стальные трубы ', 'в изоляции'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -54,7 +57,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Полиэтиленовые ', 'трубы'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 	{
 		icon: {
@@ -62,7 +65,7 @@ const servicesList = [
 			isSprite: false,
 		},
 		title: ['Фасонные изделия ', 'в изоляции'],
-		href: '/piktube/solution',
+		href: '/piktube/catalog',
 	},
 ]
 
@@ -73,7 +76,7 @@ const productsList = [
 			alt: 'Трубы ПНД',
 		},
 		title: 'Трубы ПНД',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '1',
 	},
 	{
@@ -82,7 +85,7 @@ const productsList = [
 			alt: 'Гофрированные трубы',
 		},
 		title: 'Гофрированные трубы',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '2',
 	},
 	{
@@ -91,7 +94,7 @@ const productsList = [
 			alt: 'Газовые трубы ПНД',
 		},
 		title: 'Газовые трубы ПНД',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '3',
 	},
 	{
@@ -100,7 +103,7 @@ const productsList = [
 			alt: 'ППМ трубы',
 		},
 		title: 'ППМ трубы',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '4',
 	},
 	{
@@ -109,7 +112,7 @@ const productsList = [
 			alt: 'ППУ трубы',
 		},
 		title: 'ППУ трубы',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '5',
 	},
 	{
@@ -118,7 +121,7 @@ const productsList = [
 			alt: 'Трубы для защиты кабеля',
 		},
 		title: 'Трубы для защиты кабеля',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '6',
 	},
 	{
@@ -127,7 +130,7 @@ const productsList = [
 			alt: 'PE-RT',
 		},
 		title: 'PE-RT',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '7',
 	},
 	{
@@ -136,7 +139,7 @@ const productsList = [
 			alt: 'Фитинги',
 		},
 		title: 'Фитинги',
-		href: '/piktube/product-page',
+		href: '/piktube/catalog',
 		mode: '8',
 	},
 ]
@@ -145,6 +148,68 @@ interface ProductCatalogProps {
 	isBorder?: boolean
 }
 const { isBorder } = defineProps<ProductCatalogProps>()
+
+const config = useRuntimeConfig()
+const { data: productsData } = await useAsyncData('productsCatalog', () =>
+	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`),
+)
+
+const makeSectionHref = (section: ProductSectionNode, path: string[]) => {
+	const base = 'catalog'
+	const suffix = path.length ? `/${path.join('/')}` : ''
+	return base ? `${config.app.baseURL}${base}${suffix}` : ''
+}
+
+const buildChildLinks = (node: ProductSectionNode, path: string[]) => {
+	const children = node.CHILDREN || []
+	return children
+		.map(child => {
+			const code = resolveSectionCode(child.SECTION)
+			if (!code) return null
+			const childPath = [...path, code]
+			return {
+				title: child.SECTION.NAME,
+				href: makeSectionHref(child, childPath),
+			}
+		})
+		.filter(Boolean)
+}
+
+const flattenSections = (
+	nodes: ProductSectionNode[],
+	parentPath: string[] = [],
+	depth = 1,
+): Array<{ node: ProductSectionNode; path: string[]; depth: number }> => {
+	return nodes.flatMap(node => {
+		const code = resolveSectionCode(node.SECTION)
+		if (!code) return []
+		const path = [...parentPath, code]
+		const current = [{ node, path, depth }]
+		const children = node.CHILDREN
+			? flattenSections(node.CHILDREN, path, depth + 1)
+			: []
+		return current.concat(children)
+	})
+}
+
+const sectionsFlat = computed(() => {
+	const tree = productsData.value?.data?.TREE || []
+	return flattenSections(tree)
+})
+
+const servicesList = computed(() => {
+	const top = sectionsFlat.value.filter(entry => entry.depth === 1)
+	if (top.length === 0) return []
+	const icons = fallbackServicesList.map(item => item.icon)
+	return top.map((entry, index) => ({
+		icon: icons[index] || { name: 'pipes', isSprite: false },
+		title: [entry.node.SECTION.NAME],
+		href: entry.node.SECTION.UF_TYPE_ELEMENT ? makeSectionHref(entry.node, entry.path) : '',
+		links: buildChildLinks(entry.node, entry.path),
+	}))
+})
+
+// productsList stays static for now per requirements
 </script>
 
 <template>
@@ -164,7 +229,6 @@ const { isBorder } = defineProps<ProductCatalogProps>()
 								v-for="(item, index) in servicesList"
 								:key="index"
 								v-bind="item"
-								:is-water-supply="index === 0"
 							/>
 						</div>
 					</SectionWrapper>
@@ -204,7 +268,6 @@ const { isBorder } = defineProps<ProductCatalogProps>()
 								v-for="(item, index) in servicesList"
 								:key="index"
 								v-bind="item"
-								:is-water-supply="index === 0"
 							/>
 						</div>
 					</SectionWrapper>

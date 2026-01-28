@@ -29,6 +29,7 @@ export { withCtx, withDirectives, withKeys, withMemo, withModifiers, withScopeId
 export { requestIdleCallback, cancelIdleCallback } from '#app/compat/idle-callback';
 export { setInterval } from '#app/compat/interval';
 export { defineLazyHydrationComponent } from '#app/composables/lazy-hydration';
+export { resolveSectionCode, resolveItemCode, normalizePathSegments, resolvePathNodes, findSectionByPath, decodeHtml, resolveImageSrc, chunkArray, collectListPageProperties, mapListPageValues, mapListPageAggregates, ProductProperty, ProductItem, ProductSection, ProductSectionNode, ProductsTreeResponse, ProductSectionDetailResponse, ListPageProperty } from '../composables/products';
 export { useAnimations } from '../composables/useAnimations';
 export { useModals } from '../composables/useModals';
 export { useScrollOffset } from '../composables/useScrollOffset';

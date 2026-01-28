@@ -1,6 +1,14 @@
 <script setup lang="ts">
-const title = ['Полный каталог труб ПНД ', 'ПИКПАЙП']
-const titleList = [
+import type { PipeCardProps } from '~/components/cards/PipeCard.vue'
+
+interface PPCatalogProps {
+	title?: string[]
+	titleList?: string[]
+	slides?: PipeCardProps[][]
+}
+
+const fallbackTitle = ['Полный каталог труб ПНД ', 'ПИКПАЙП']
+const fallbackTitleList = [
 	'Толщина стенки:',
 	'Марка стали:',
 	'ГОСТ/ТУ:',
@@ -8,7 +16,7 @@ const titleList = [
 	'Толщина изоляции:',
 	'd оболочки:',
 ]
-const slides = [
+const fallbackSlides: PipeCardProps[][] = [
 	[
 		{
 			image: { src: 'production/production-07-small', alt: 'Труба' },
@@ -90,10 +98,29 @@ const slides = [
 		},
 	],
 ]
+
+const props = defineProps<PPCatalogProps>()
+
+const resolvedTitle = computed(() => {
+	if (props.title) return props.title
+	return fallbackTitle
+})
+const resolvedTitleList = computed(() => {
+	if (props.titleList) return props.titleList
+	return fallbackTitleList
+})
+const resolvedSlides = computed(() => {
+	if (props.slides) return props.slides
+	return fallbackSlides
+})
 </script>
 
 <template>
-	<catalog-section :title="title" :title-list="titleList" :slides="slides" />
+	<catalog-section
+		:title="resolvedTitle"
+		:title-list="resolvedTitleList"
+		:slides="resolvedSlides"
+	/>
 </template>
 
 <style lang="scss"></style>

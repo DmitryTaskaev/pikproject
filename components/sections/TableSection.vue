@@ -4,12 +4,30 @@ import type { ProductTableCardProps } from '../cards/ProductTableCard.vue'
 interface TableSectionProps {
 	title: string
 	slides: ProductTableCardProps[][]
+	titles?: string[]
+	dropdowns?: Array<string[] | null>
 }
 
 const btnText = ref('Показать больше')
 const isBtnActive = ref(false)
 
-const { title, slides } = defineProps<TableSectionProps>()
+const { title, slides, titles, dropdowns } = defineProps<TableSectionProps>()
+const resolvedTitles = computed(() => {
+	const list = titles || []
+	const base =
+		list.length > 0
+			? list
+			: [
+					'Назначение изделия:',
+					'ГОСТ изделия:',
+					'ТУ изделия:',
+					'Материал изделия:',
+					'Диаметр изделия:',
+					'SDR изделия:',
+				]
+	if (base.length >= 6) return base.slice(0, 6)
+	return base.concat(Array(6 - base.length).fill(''))
+})
 
 function handleBtnClick() {
 	if (isBtnActive.value) {
@@ -39,7 +57,7 @@ function handleBtnClick() {
 				<div class="table-section__content-wrap">
 					<div class="table-section__content">
 						<div class="table-section__content--item">
-							<TableFeature />
+							<TableFeature :titles="resolvedTitles" :dropdowns="dropdowns" />
 							<product-table-slider :slides="slides" />
 						</div>
 					</div>
@@ -176,20 +194,10 @@ function handleBtnClick() {
 	}
 	&_active {
 		.product-table-card {
-			grid-template-rows:
-				205px repeat(4, 122px) repeat(2, 141px)
-				repeat(3, 122px);
-			&__wrap_additional {
-				display: flex;
-			}
+			grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
 		}
 		.table-feature {
-			grid-template-rows:
-				205px repeat(4, 122px) repeat(2, 141px)
-				repeat(3, 122px);
-			&__wrap_additional {
-				display: flex;
-			}
+			grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
 		}
 	}
 }
