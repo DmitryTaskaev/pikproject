@@ -165,15 +165,15 @@ const breadcrumbsList = computed(() => {
 			.slice(0, index + 1)
 			.map(item => resolveSectionCode(item.SECTION))
 			.filter(Boolean)
-		const href = withBasePath(`/catalog/${codes.join('/')}`)
+		const href = `/catalog/${codes.join('/')}`
 		return { title: node.SECTION.NAME, href }
 	})
 	const currentTitle = currentItem.value?.NAME || 'Товар'
 	return [
-		{ title: 'Главная', href: withBasePath('/') },
-		{ title: 'Каталог', href: withBasePath('/catalog') },
+		{ title: 'Главная', href: '/' },
+		{ title: 'Каталог', href: '/catalog' },
 		...trail,
-		{ title: currentTitle, href: withBasePath(`/catalog/${pathSegments.value.join('/')}`) },
+		{ title: currentTitle, href: `/catalog/${pathSegments.value.join('/')}` },
 	]
 })
 
