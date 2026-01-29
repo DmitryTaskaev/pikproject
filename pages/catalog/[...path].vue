@@ -388,7 +388,16 @@ const treeNode = computed(() => {
 
 const items = computed(() => {
 	const direct = sectionData.value?.data?.ITEMS || []
-	if (direct.length > 0) return direct
+	if (direct.length > 0) {
+		const seen = new Set<string>()
+		return direct.filter(item => {
+			const key = String(item.ID || item.CODE || item['~CODE'] || item.NAME || '')
+			if (!key || seen.has(key)) return false
+			seen.add(key)
+			return true
+		})
+	}
+	if (pathIsSection.value) return direct
 	return treeNode.value?.ITEMS || []
 })
 
@@ -532,7 +541,9 @@ const catalogSections = computed(() => {
 	return []
 })
 
-const listPageProperties = computed(() => collectListPageProperties(items.value))
+const listPageProperties = computed(() =>
+	collectListPageProperties(items.value).slice(0, 6),
+)
 const titleList = computed(() =>
 	listPageProperties.value.map(item => `${item.name}:`),
 )
@@ -552,7 +563,7 @@ const slides = computed(() => {
 			`/catalog/${pathString.value}/${item.CODE || item['~CODE'] || ''}`,
 		),
 	}))
-	return chunkArray(cards, 7)
+	return chunkArray(cards, 3)
 })
 
 const heroTitle = computed(() => section.value?.NAME || '')
@@ -564,10 +575,17 @@ const heroDescriptions = computed(() => {
 
 const heroMeasures = computed(() => {
 	const values = mapListPageAggregates(items.value, listPageProperties.value)
-	return listPageProperties.value.map((prop, index) => ({
-		title: `${prop.name}:`,
-		value: values[index] || '',
-	}))
+	return listPageProperties.value
+		.map((prop, index) => ({
+			title: `${prop.name}:`,
+			value: values[index] || '',
+		}))
+		.filter(item => item.value !== '')
+})
+
+const viewPicture = computed(() => {
+	const src = section.value?.PICTURE_SRC
+	return src ? resolveImageSrc(config.public.apiOrigin, src) : ''
 })
 
 const tableRowLimit = 6
@@ -1155,6 +1173,7 @@ const servicesLinkHref = computed(() => {
 			:title="heroTitle"
 			:descriptions="heroDescriptions"
 			:measures="heroMeasures"
+			:image-src="viewPicture"
 		/>
 		<PPCatalog
 			v-if="!isIndustry"

@@ -8,6 +8,7 @@ interface PPHeroProps {
 	title?: string | string[]
 	descriptions?: string[]
 	measures?: MeasureItem[]
+	imageSrc?: string
 }
 
 const fallbackDescList = [
@@ -56,6 +57,15 @@ const resolvedDescriptions = computed(() => {
 const resolvedMeasures = computed(() => {
 	return props.measures !== undefined ? props.measures : fallbackMeasures
 })
+
+const imageStyle = computed(() => {
+	if (!props.imageSrc) return undefined
+	return {
+		backgroundImage: `url(${props.imageSrc})`,
+		backgroundSize: 'cover',
+		backgroundPosition: 'center',
+	}
+})
 </script>
 
 <template>
@@ -72,7 +82,7 @@ const resolvedMeasures = computed(() => {
 						</template>
 					</custom-title>
 				</div>
-				<div class="p-p-hero__image"></div>
+				<div class="p-p-hero__image" :style="imageStyle"></div>
 				<div class="p-p-hero__desc">
 					<Text
 						v-for="(item, index) in resolvedDescriptions"
