@@ -10,6 +10,10 @@ interface PipesListProps {
 const props = defineProps<PipesListProps>()
 
 const isSlider = props.slides ? true : false
+const instanceId = useId().replace(/:/g, '')
+const paginationClass = `pipes-list__pagination-${instanceId}`
+const navPrevClass = `pipes-list__nav-prev-${instanceId}`
+const navNextClass = `pipes-list__nav-next-${instanceId}`
 </script>
 
 <template>
@@ -35,11 +39,11 @@ const isSlider = props.slides ? true : false
 						:space-between="0"
 						:slides-per-view="1"
 						:navigation="{
-							nextEl: '.pipes-list__nav-next',
-							prevEl: '.pipes-list__nav-prev',
+							nextEl: `.${navNextClass}`,
+							prevEl: `.${navPrevClass}`,
 						}"
 						:pagination="{
-							el: '.pipes-list__pagination',
+							el: `.${paginationClass}`,
 							clickable: true,
 							renderBullet: (index: number, className: string) => {
 								return `<span class='${className}'>${index + 1}</span>`
@@ -80,14 +84,17 @@ const isSlider = props.slides ? true : false
 		</div>
 
 		<!-- Внешние элементы управления -->
-		<div v-if="isSlider && props.slides" class="pipes-list__controls">
+		<div
+			v-if="isSlider && props.slides && props.slides.length > 1"
+			class="pipes-list__controls"
+		>
 			<Button
-				class="pipes-list__nav-btn pipes-list__nav-prev"
+				:class="['pipes-list__nav-btn', navPrevClass]"
 				:icon="{ name: 'button-arrow', mode: 'prev' }"
 			/>
-			<div class="pipes-list__pagination" />
+			<div :class="paginationClass" />
 			<Button
-				class="pipes-list__nav-btn pipes-list__nav-next"
+				:class="['pipes-list__nav-btn', navNextClass]"
 				:icon="{ name: 'button-arrow', mode: 'next' }"
 			/>
 		</div>
@@ -189,9 +196,10 @@ const isSlider = props.slides ? true : false
 		bottom: 0;
 		left: 0;
 		width: 100%;
-		display: flex;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
+		justify-items: center;
 	}
 
 	&__nav-btn {

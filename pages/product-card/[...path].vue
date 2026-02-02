@@ -112,8 +112,24 @@ const documents = computed<DocumentSlideProps[]>(() => {
 			href: file.SRC ? resolveImageSrc(config.public.apiOrigin, file.SRC) : undefined,
 		}))
 	}
-	const srcs = docs?.SRC || []
-	return srcs.map(src => ({
+	const rawSources = (docs as { SRC?: unknown; VALUE?: unknown } | undefined)?.SRC ??
+		(docs as { SRC?: unknown; VALUE?: unknown } | undefined)?.VALUE ?? []
+	const srcs = Array.isArray(rawSources)
+		? rawSources
+		: rawSources
+			? [rawSources]
+			: []
+	const normalized = srcs
+		.map(src => {
+			if (typeof src === 'string') return src
+			if (src && typeof src === 'object') {
+				const obj = src as { SRC?: string }
+				return obj.SRC || ''
+			}
+			return ''
+		})
+		.filter(Boolean)
+	return normalized.map(src => ({
 		text: ['Документ'],
 		href: resolveImageSrc(config.public.apiOrigin, src),
 	}))

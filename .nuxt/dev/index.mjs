@@ -1340,7 +1340,22 @@ const plugins = [
 _5occW4IHQMhMRTptKTHQ59jN0_fD0kpYs6CulKOQHw
 ];
 
-const assets = {};
+const assets = {
+  "/index.mjs": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"18f09-VTVMwhVmMpb0gNiwAifoIhOzGBg\"",
+    "mtime": "2026-01-29T20:18:45.644Z",
+    "size": 102153,
+    "path": "index.mjs"
+  },
+  "/index.mjs.map": {
+    "type": "application/json",
+    "etag": "\"54dae-G67JhcZIJKaZZFV4ordsziOUrSQ\"",
+    "mtime": "2026-01-29T20:18:45.643Z",
+    "size": 347566,
+    "path": "index.mjs.map"
+  }
+};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -1920,6 +1935,7 @@ const _lazy_Y_iR_o = () => Promise.resolve().then(function () { return mainTrust
 const _lazy_tp4InG = () => Promise.resolve().then(function () { return menu_get$1; });
 const _lazy_u5tSI8 = () => Promise.resolve().then(function () { return news_get$1; });
 const _lazy_cE0OZD = () => Promise.resolve().then(function () { return products_get$1; });
+const _lazy_9F9Qeb = () => Promise.resolve().then(function () { return productsList_get$1; });
 const _lazy_i7_xUx = () => Promise.resolve().then(function () { return services_get$1; });
 const _lazy_VRYqL9 = () => Promise.resolve().then(function () { return serviceSeo_get$1; });
 const _lazy_9i62zk = () => Promise.resolve().then(function () { return servicesTop_get$1; });
@@ -1947,6 +1963,7 @@ const handlers = [
   { route: '/api/menu', handler: _lazy_tp4InG, lazy: true, middleware: false, method: "get" },
   { route: '/api/news', handler: _lazy_u5tSI8, lazy: true, middleware: false, method: "get" },
   { route: '/api/products', handler: _lazy_cE0OZD, lazy: true, middleware: false, method: "get" },
+  { route: '/api/productsList', handler: _lazy_9F9Qeb, lazy: true, middleware: false, method: "get" },
   { route: '/api/services', handler: _lazy_i7_xUx, lazy: true, middleware: false, method: "get" },
   { route: '/api/serviceSeo', handler: _lazy_VRYqL9, lazy: true, middleware: false, method: "get" },
   { route: '/api/servicesTop', handler: _lazy_9i62zk, lazy: true, middleware: false, method: "get" },
@@ -2600,6 +2617,20 @@ const products_get = defineEventHandler(async (event) => {
 const products_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: products_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const productsList_get = defineEventHandler(async () => {
+  const config = useRuntimeConfig();
+  const headers = {};
+  if (config.apiKey) {
+    headers["X-API-KEY"] = config.apiKey;
+  }
+  return await $fetch(`${config.apiBase}/productsList`, { headers });
+});
+
+const productsList_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: productsList_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const services_get = defineEventHandler(async (event) => {

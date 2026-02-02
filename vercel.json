@@ -1,0 +1,14 @@
+{
+	"buildCommand": "npm run generate",
+	"outputDirectory": ".output/public",
+	"rewrites": [
+		{
+			"source": "/",
+			"destination": "/piktube/"
+		},
+		{
+			"source": "/((?!piktube/).*)",
+			"destination": "/piktube/$1"
+		}
+	]
+}

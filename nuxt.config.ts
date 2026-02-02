@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 		inlineSSRStyles: false,
 	},
 	nitro: {
-		preset: 'static',
+		preset: 'vercel-static',
 		prerender: {
 			crawlLinks: true,
 			routes: ['/news'],

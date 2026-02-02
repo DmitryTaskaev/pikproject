@@ -2,6 +2,7 @@
 interface SHeroProps {
 	title?: string | string[]
 	descriptions?: string[]
+	imageSrc?: string
 }
 
 const fallbackDescList = [
@@ -24,6 +25,9 @@ const normalizeNbsp = (s: string) => s.replaceAll('&nbsp;', '\u00A0')
 const splitByBr = (s: string) => normalizeNbsp(s).split(/<br\s*\/?\s*>/i)
 
 const descLines = computed(() => resolvedDescriptions.value.map(t => splitByBr(t)))
+const imageStyle = computed(() => {
+	return props.imageSrc ? { backgroundImage: `url('${props.imageSrc}')` } : {}
+})
 </script>
 
 <template>
@@ -41,7 +45,7 @@ const descLines = computed(() => resolvedDescriptions.value.map(t => splitByBr(t
 						</template></custom-title
 					>
 				</div>
-				<div class="s-hero__image"></div>
+				<div class="s-hero__image" :style="imageStyle"></div>
 				<div class="s-hero__desc">
 					<template v-for="(lines, index) in descLines" :key="index">
 						<Text class="s-hero__desc--item">
@@ -92,6 +96,9 @@ const descLines = computed(() => resolvedDescriptions.value.map(t => splitByBr(t
 		aspect-ratio: 1 / 1;
 		border-radius: 12px;
 		background: var(--primary-bg);
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
 		@include tablet {
 			grid-column: 2/3;
 			grid-row: 1 / -1;

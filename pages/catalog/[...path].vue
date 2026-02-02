@@ -428,6 +428,11 @@ const resolveSectionType = (
 
 const sectionType = computed(() => resolveSectionType(section.value, items.value))
 const isIndustry = computed(() => sectionType.value === 'INDUSTRY')
+const industryPicture = computed(() =>
+	section.value?.PICTURE_SRC
+		? resolveImageSrc(config.public.apiOrigin, section.value.PICTURE_SRC)
+		: '',
+)
 
 type VariantSectionNode = {
 	SECTION: any
@@ -740,6 +745,7 @@ const itemDocuments = computed(() => {
 		| {
 				SRC?: string[]
 				FILES?: Array<{ SRC?: string; FILE_SIZE?: number; ORIGINAL_NAME?: string }>
+				VALUE?: unknown
 		  }
 		| undefined
 	const files = docs?.FILES || []
@@ -752,8 +758,23 @@ const itemDocuments = computed(() => {
 			href: file.SRC ? resolveImageSrc(config.public.apiOrigin, file.SRC) : undefined,
 		}))
 	}
-	const srcs = docs?.SRC || []
-	return srcs.map(src => ({
+	const rawSources = docs?.SRC ?? docs?.VALUE ?? []
+	const srcs = Array.isArray(rawSources)
+		? rawSources
+		: rawSources
+			? [rawSources]
+			: []
+	const normalized = srcs
+		.map(src => {
+			if (typeof src === 'string') return src
+			if (src && typeof src === 'object') {
+				const obj = src as { SRC?: string; ORIGINAL_NAME?: string }
+				return obj.SRC || ''
+			}
+			return ''
+		})
+		.filter(Boolean)
+	return normalized.map(src => ({
 		text: ['Документ'],
 		href: resolveImageSrc(config.public.apiOrigin, src),
 	}))
@@ -1138,7 +1159,12 @@ const servicesLinkHref = computed(() => {
 		</template>
 		<template v-else>
 		<HeroVideo v-if="isIndustry" />
-		<SHero v-if="isIndustry" :title="heroTitle" :descriptions="heroDescriptions" />
+		<SHero
+			v-if="isIndustry"
+			:title="heroTitle"
+			:descriptions="heroDescriptions"
+			:image-src="industryPicture"
+		/>
 		<TableSection
 			v-if="isIndustry && productTableSlides.length"
 			title="Варианты труб"
@@ -1193,7 +1219,10 @@ const servicesLinkHref = computed(() => {
 			:description="seoDescription"
 		/>
 		<ConsultationBlock />
+		<ActionsPopup />
 	</main>
+	<DocumentationModal />
+	<OrderModal />
 </template>
 
 <style lang="scss"></style>
