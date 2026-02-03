@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PipeCardProps } from '~/components/cards/PipeCard.vue'
 import type { ImageProps } from '~/components/ui/base/Image.vue'
+import type { ConstructionSlideProps } from '~/components/slides/ConstructionSlide.vue'
 import type {
 	ProductProperty,
 	ProductSectionDetailResponse,
@@ -48,6 +49,51 @@ interface ServicesDetailResponse {
 	data: ServicesSectionDetail
 }
 
+interface ConstructionPointItem {
+	PROPERTIES?: Record<string, { VALUE?: string }>
+	PROPERTY_POINT_DESCRIPTION_VALUE?: string
+	PROPERTY_POINT_TOP_VALUE?: string
+	PROPERTY_POINT_LEFT_VALUE?: string
+}
+
+interface ConstructionSectionNode {
+	SECTION: {
+		NAME: string
+		DESCRIPTION?: string
+		['~DESCRIPTION']?: string
+		PICTURE_SRC?: string
+	}
+	ITEMS?: ConstructionPointItem[]
+	CHILDREN?: ConstructionSectionNode[]
+}
+
+interface ConstructionResponse {
+	status: string
+	data: {
+		TREE?: ConstructionSectionNode[]
+	}
+}
+
+interface CompoundSectionNode {
+	SECTION: {
+		NAME: string
+		DESCRIPTION?: string
+		['~DESCRIPTION']?: string
+		PICTURE_SRC?: string
+		UF_TYPE_RU?: string | null
+		['~UF_TYPE_RU']?: string | null
+	}
+	ITEMS?: ConstructionPointItem[]
+	CHILDREN?: CompoundSectionNode[]
+}
+
+interface CompoundResponse {
+	status: string
+	data: {
+		TREE?: CompoundSectionNode[]
+	}
+}
+
 const fitting = {
 	content: {
 		desc: 'Для надземной прокладки теплотрасс и промышленных сетей. Обеспечивает высокую механическую прочность и стойкость к внешним воздействиям.',
@@ -68,246 +114,6 @@ const fitting = {
 	},
 }
 
-const constructionSlides = [
-	{
-		image: {
-			src: 'construction-bg',
-			alt: 'Конструкция',
-		},
-		description:
-			'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности.',
-		points: [
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '65%',
-				left: '23%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '57%',
-				left: '68%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '28.5%',
-				left: '71%',
-			},
-		],
-	},
-	{
-		image: {
-			src: 'construction-bg',
-			alt: 'Конструкция',
-		},
-		description:
-			'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 1',
-		points: [
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '45%',
-				left: '23%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '77%',
-				left: '68%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '18.5%',
-				left: '71%',
-			},
-		],
-	},
-	{
-		image: {
-			src: 'construction-bg',
-			alt: 'Конструкция',
-		},
-		description:
-			'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 2',
-		points: [
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '65%',
-				left: '23%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '57%',
-				left: '68%',
-			},
-			{
-				title: 'Описание краткое на пару предложений к картинке',
-				top: '28.5%',
-				left: '71%',
-			},
-		],
-	},
-]
-
-const constructionSliders = [
-	{
-		button: 'Cпособ 1',
-		slides: [
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности.',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '65%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '57%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '28.5%',
-						left: '71%',
-					},
-				],
-			},
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 1',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '45%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '77%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '18.5%',
-						left: '71%',
-					},
-				],
-			},
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 2',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '65%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '57%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '28.5%',
-						left: '71%',
-					},
-				],
-			},
-		],
-	},
-	{
-		button: 'Cпособ 2',
-		slides: [
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 3',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '45%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '77%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '18.5%',
-						left: '71%',
-					},
-				],
-			},
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 4',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '65%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '57%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '28.5%',
-						left: '71%',
-					},
-				],
-			},
-			{
-				image: {
-					src: 'construction-bg',
-					alt: 'Конструкция',
-				},
-				description:
-					'Наружный слой синего цвета производится из ПЭ 100-RC. Упрощает контроль повреждений трубы, а также предотвращает разрушение трубы, вызванное развитием царапин, задиров и иных повреждений внешней поверхности. 5',
-				points: [
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '45%',
-						left: '23%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '77%',
-						left: '68%',
-					},
-					{
-						title: 'Описание краткое на пару предложений к картинке',
-						top: '18.5%',
-						left: '71%',
-					},
-				],
-			},
-		],
-	},
-]
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -433,6 +239,164 @@ const industryPicture = computed(() =>
 		? resolveImageSrc(config.public.apiOrigin, section.value.PICTURE_SRC)
 		: '',
 )
+const industrySliderSlides = computed(() => {
+	const raw =
+		section.value?.UF_SLIDER_RU ||
+		section.value?.UF_SLIDER_RU_FILES?.map(file => file.SRC).filter(Boolean) ||
+		[]
+	const list = Array.isArray(raw) ? raw : raw ? [raw] : []
+	return list
+		.map(src => (src ? resolveImageSrc(config.public.apiOrigin, src) : ''))
+		.filter(Boolean)
+		.map(src => ({
+			type: 'image' as const,
+			src,
+			alt: section.value?.NAME || '',
+		}))
+})
+
+const constructionSectionId = computed(() => {
+	const value = section.value?.UF_CONSTRUCTION_RU
+	if (!value) return ''
+	return String(value)
+		.split(',')
+		.map(v => v.trim())
+		.filter(Boolean)[0]
+})
+
+const { data: constructionData } = await useAsyncData(
+	() => `catalog-construction-${constructionSectionId.value}`,
+	() =>
+		constructionSectionId.value
+			? $fetch<ConstructionResponse>(`${config.app.baseURL}api/construction`, {
+					query: {
+						section_id: constructionSectionId.value,
+						include_subsections: 1,
+					},
+				})
+			: null,
+	{ watch: [constructionSectionId] },
+)
+
+const normalizeConstructionText = (value?: string) => {
+	if (!value) return ''
+	const decoded = decodeHtml(value)
+	return decoded
+		.replace(/<br\s*\/?\s*>/gi, '\n')
+		.replace(/<[^>]+>/g, '')
+		.trim()
+}
+
+const constructionSlides = computed<ConstructionSlideProps[]>(() => {
+	const root = constructionData.value?.data?.TREE?.[0]
+	const children = root?.CHILDREN || []
+	return children.map(child => {
+		const description = normalizeConstructionText(
+			child.SECTION.DESCRIPTION || child.SECTION['~DESCRIPTION'],
+		)
+		const imageSrc = child.SECTION.PICTURE_SRC
+			? resolveImageSrc(config.public.apiOrigin, child.SECTION.PICTURE_SRC)
+			: ''
+		const points = (child.ITEMS || [])
+			.map(item => {
+				const props = item.PROPERTIES || {}
+				const title = props.POINT_DESCRIPTION?.VALUE || ''
+				const top = props.POINT_TOP?.VALUE || ''
+				const left = props.POINT_LEFT?.VALUE || ''
+				if (!title || !top || !left) return null
+				return { title, top, left }
+			})
+			.filter(Boolean) as Array<{ title: string; top: string; left: string }>
+
+		return {
+			image: {
+				src: imageSrc,
+				alt: child.SECTION.NAME || 'Конструкция',
+			},
+			description,
+			points,
+		}
+	})
+})
+
+const compoundSectionId = computed(() => {
+	const value = section.value?.UF_COMPOUND_RU
+	if (!value) return ''
+	return String(value)
+		.split(',')
+		.map(v => v.trim())
+		.filter(Boolean)[0]
+})
+
+const { data: compoundData } = await useAsyncData(
+	() => `catalog-compound-${compoundSectionId.value}`,
+	() =>
+		compoundSectionId.value
+			? $fetch<CompoundResponse>(`${config.app.baseURL}api/compound`, {
+					query: {
+						section_id: compoundSectionId.value,
+						include_subsections: 1,
+					},
+				})
+			: null,
+	{ watch: [compoundSectionId] },
+)
+
+const compoundSliders = computed(() => {
+	const root = compoundData.value?.data?.TREE?.[0]
+	const tabs = root?.CHILDREN || []
+	return tabs
+		.filter(tab => {
+			const type = String(
+				tab.SECTION.UF_TYPE_RU ||
+					tab.SECTION['~UF_TYPE_RU'] ||
+					'',
+			).toUpperCase()
+			return type === 'TAB'
+		})
+		.map(tab => {
+			const slides: ConstructionSlideProps[] = (tab.CHILDREN || [])
+				.filter(child => {
+					const type = String(
+						child.SECTION.UF_TYPE_RU ||
+							child.SECTION['~UF_TYPE_RU'] ||
+							'',
+					).toUpperCase()
+					return type === 'ITEM' || type === 'ELEMENT'
+				})
+				.map(child => {
+					const description = normalizeConstructionText(
+						child.SECTION.DESCRIPTION || child.SECTION['~DESCRIPTION'],
+					)
+					const imageSrc = child.SECTION.PICTURE_SRC
+						? resolveImageSrc(config.public.apiOrigin, child.SECTION.PICTURE_SRC)
+						: ''
+					const points = (child.ITEMS || [])
+						.map(item => {
+							const props = item.PROPERTIES || {}
+							const title = props.POINT_DESCRIPTION?.VALUE || ''
+							const top = props.POINT_TOP?.VALUE || ''
+							const left = props.POINT_LEFT?.VALUE || ''
+							if (!title || !top || !left) return null
+							return { title, top, left }
+						})
+						.filter(Boolean) as Array<{ title: string; top: string; left: string }>
+					return {
+						image: {
+							src: imageSrc,
+							alt: child.SECTION.NAME || 'Способ соединения',
+						},
+						description,
+						points,
+					}
+				})
+			return {
+				button: tab.SECTION.NAME || 'Способ',
+				slides,
+			}
+		})
+		.filter(tab => tab.slides.length > 0)
+})
 
 type VariantSectionNode = {
 	SECTION: any
@@ -1158,7 +1122,10 @@ const servicesLinkHref = computed(() => {
 			/>
 		</template>
 		<template v-else>
-		<HeroVideo v-if="isIndustry" />
+		<HeroVideo
+			v-if="isIndustry && industrySliderSlides.length"
+			:slides="industrySliderSlides"
+		/>
 		<SHero
 			v-if="isIndustry"
 			:title="heroTitle"
@@ -1185,21 +1152,26 @@ const servicesLinkHref = computed(() => {
 			title="Фитинги"
 		/>
 		<ConstructionSection
-			v-if="isIndustry"
+			v-if="isIndustry && constructionSlides.length"
 			title="Конструкция"
 			:slides="constructionSlides"
 		/>
-		<ConstructionSection
-			v-if="isIndustry"
-			title="Способы соединения"
-			:sliders="constructionSliders"
-		/>
 		<PPHero
-			v-else
+			v-if="!isIndustry"
 			:title="heroTitle"
 			:descriptions="heroDescriptions"
 			:measures="heroMeasures"
 			:image-src="viewPicture"
+		/>
+		<ConstructionSection
+			v-if="!isIndustry && constructionSlides.length"
+			title="Конструкция"
+			:slides="constructionSlides"
+		/>
+		<ConstructionSection
+			v-if="compoundSliders.length"
+			title="Способы соединения"
+			:sliders="compoundSliders"
 		/>
 		<PPCatalog
 			v-if="!isIndustry"

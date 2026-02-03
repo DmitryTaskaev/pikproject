@@ -6,6 +6,12 @@ declare module "nitropack/types" {
     '/api/awards': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/awards.get').default>>>>
     }
+    '/api/compound': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/compound.get').default>>>>
+    }
+    '/api/construction': {
+      'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/construction.get').default>>>>
+    }
     '/api/designersPage': {
       'get': Simplify<Serialize<Awaited<ReturnType<typeof import('../../server/api/designersPage.get').default>>>>
     }

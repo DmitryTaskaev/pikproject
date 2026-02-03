@@ -24,6 +24,10 @@ export interface ProductSection {
 	DESCRIPTION?: string
 	UF_TYPE_ELEMENT?: string | null
 	UF_SERVICES?: string | null
+	UF_CONSTRUCTION_RU?: string | null
+	UF_COMPOUND_RU?: string | null
+	UF_SLIDER_RU?: string[] | null
+	UF_SLIDER_RU_FILES?: Array<{ SRC?: string }> | null
 	PICTURE_SRC?: string
 	UF_SEO_TITLE?: string
 	UF_SEO_DESCRIPTION?: string

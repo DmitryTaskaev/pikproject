@@ -1343,16 +1343,16 @@ _5occW4IHQMhMRTptKTHQ59jN0_fD0kpYs6CulKOQHw
 const assets = {
   "/index.mjs": {
     "type": "text/javascript; charset=utf-8",
-    "etag": "\"18f09-VTVMwhVmMpb0gNiwAifoIhOzGBg\"",
-    "mtime": "2026-01-29T20:18:45.644Z",
-    "size": 102153,
+    "etag": "\"196ea-JfsFQKOgGOqVLhG9IdSVuhmG2CY\"",
+    "mtime": "2026-02-03T19:18:40.466Z",
+    "size": 104170,
     "path": "index.mjs"
   },
   "/index.mjs.map": {
     "type": "application/json",
-    "etag": "\"54dae-G67JhcZIJKaZZFV4ordsziOUrSQ\"",
-    "mtime": "2026-01-29T20:18:45.643Z",
-    "size": 347566,
+    "etag": "\"55bc9-8c3fU/iAFrkXAO1Q2v02ZR6yREk\"",
+    "mtime": "2026-02-03T19:18:40.466Z",
+    "size": 351177,
     "path": "index.mjs.map"
   }
 };
@@ -1917,6 +1917,8 @@ const _kh1OWB = lazyEventHandler(() => {
 });
 
 const _lazy_7cbSLn = () => Promise.resolve().then(function () { return awards_get$1; });
+const _lazy_tY1JJT = () => Promise.resolve().then(function () { return compound_get$1; });
+const _lazy_sV9aWw = () => Promise.resolve().then(function () { return construction_get$1; });
 const _lazy_lnM3g8 = () => Promise.resolve().then(function () { return designersPage_get$1; });
 const _lazy_8948v4 = () => Promise.resolve().then(function () { return detailPageInfo_get$1; });
 const _lazy_N2xIal = () => Promise.resolve().then(function () { return infocontacts_get$1; });
@@ -1945,6 +1947,8 @@ const _lazy_Lef8rh = () => Promise.resolve().then(function () { return renderer$
 const handlers = [
   { route: '', handler: _TC3uvp, lazy: false, middleware: true, method: undefined },
   { route: '/api/awards', handler: _lazy_7cbSLn, lazy: true, middleware: false, method: "get" },
+  { route: '/api/compound', handler: _lazy_tY1JJT, lazy: true, middleware: false, method: "get" },
+  { route: '/api/construction', handler: _lazy_sV9aWw, lazy: true, middleware: false, method: "get" },
   { route: '/api/designersPage', handler: _lazy_lnM3g8, lazy: true, middleware: false, method: "get" },
   { route: '/api/detailPageInfo', handler: _lazy_8948v4, lazy: true, middleware: false, method: "get" },
   { route: '/api/infocontacts', handler: _lazy_N2xIal, lazy: true, middleware: false, method: "get" },
@@ -2236,6 +2240,62 @@ const awards_get = defineEventHandler(async () => {
 const awards_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: awards_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const compound_get = defineEventHandler(async (event) => {
+  var _a;
+  const config = useRuntimeConfig();
+  const headers = {};
+  if (config.apiKey) {
+    headers["X-API-KEY"] = config.apiKey;
+  }
+  const query = getQuery$1(event);
+  if (!query.section_id) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "section_id is required"
+    });
+  }
+  return await $fetch(`${config.apiBase}/compound`, {
+    headers,
+    query: {
+      section_id: query.section_id,
+      include_subsections: (_a = query.include_subsections) != null ? _a : 1
+    }
+  });
+});
+
+const compound_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: compound_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const construction_get = defineEventHandler(async (event) => {
+  var _a;
+  const config = useRuntimeConfig();
+  const headers = {};
+  if (config.apiKey) {
+    headers["X-API-KEY"] = config.apiKey;
+  }
+  const query = getQuery$1(event);
+  if (!query.section_id) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "section_id is required"
+    });
+  }
+  return await $fetch(`${config.apiBase}/construction`, {
+    headers,
+    query: {
+      section_id: query.section_id,
+      include_subsections: (_a = query.include_subsections) != null ? _a : 1
+    }
+  });
+});
+
+const construction_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: construction_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const designersPage_get = defineEventHandler(async () => {
