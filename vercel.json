@@ -6,11 +6,19 @@
 			"destination": "/api/$1"
 		},
 		{
+			"source": "/api/(.*)",
+			"destination": "/api/$1"
+		},
+		{
+			"source": "/piktube/(.*)",
+			"destination": "/piktube/$1"
+		},
+		{
 			"source": "/",
 			"destination": "/piktube/"
 		},
 		{
-			"source": "/((?!(piktube/|api/)).*)",
+			"source": "/(.*)",
 			"destination": "/piktube/$1"
 		}
 	]
