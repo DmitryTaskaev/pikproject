@@ -1,0 +1,276 @@
+{
+  "version": 3,
+  "overrides": {},
+  "routes": [
+    {
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "src": "/_nuxt/builds/meta/(.*)"
+    },
+    {
+      "headers": {
+        "cache-control": "public, max-age=1, immutable"
+      },
+      "src": "/_nuxt/builds/(.*)"
+    },
+    {
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "src": "/_nuxt/(.*)"
+    },
+    {
+      "src": "/piktube/_nuxt/builds/meta(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "src": "/piktube/_nuxt/builds(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "src": "/piktube/_nuxt(.*)",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/__nuxt_error",
+      "dest": "/__nitro"
+    },
+    {
+      "src": "/solution",
+      "dest": "/solution"
+    },
+    {
+      "src": "/sitemap",
+      "dest": "/sitemap"
+    },
+    {
+      "src": "/services-catalog",
+      "dest": "/services-catalog"
+    },
+    {
+      "src": "/services",
+      "dest": "/services"
+    },
+    {
+      "src": "/service-page",
+      "dest": "/service-page"
+    },
+    {
+      "src": "/public-offer",
+      "dest": "/public-offer"
+    },
+    {
+      "src": "/products-catalog",
+      "dest": "/products-catalog"
+    },
+    {
+      "src": "/product-page",
+      "dest": "/product-page"
+    },
+    {
+      "src": "/product-card",
+      "dest": "/product-card"
+    },
+    {
+      "src": "/pro",
+      "dest": "/pro"
+    },
+    {
+      "src": "/news-item",
+      "dest": "/news-item"
+    },
+    {
+      "src": "/news",
+      "dest": "/news"
+    },
+    {
+      "src": "/lab",
+      "dest": "/lab"
+    },
+    {
+      "src": "/details",
+      "dest": "/details"
+    },
+    {
+      "src": "/contacts",
+      "dest": "/contacts"
+    },
+    {
+      "src": "/catalog",
+      "dest": "/catalog"
+    },
+    {
+      "src": "/awards",
+      "dest": "/awards"
+    },
+    {
+      "src": "/api/threeBlockMain",
+      "dest": "/api/threeBlockMain"
+    },
+    {
+      "src": "/api/servicesTop",
+      "dest": "/api/servicesTop"
+    },
+    {
+      "src": "/api/serviceSeo",
+      "dest": "/api/serviceSeo"
+    },
+    {
+      "src": "/api/services",
+      "dest": "/api/services"
+    },
+    {
+      "src": "/api/productsList",
+      "dest": "/api/productsList"
+    },
+    {
+      "src": "/api/products",
+      "dest": "/api/products"
+    },
+    {
+      "src": "/api/news",
+      "dest": "/api/news"
+    },
+    {
+      "src": "/api/menu",
+      "dest": "/api/menu"
+    },
+    {
+      "src": "/api/mainTrust",
+      "dest": "/api/mainTrust"
+    },
+    {
+      "src": "/api/mainTextImage",
+      "dest": "/api/mainTextImage"
+    },
+    {
+      "src": "/api/mainSliderBottom",
+      "dest": "/api/mainSliderBottom"
+    },
+    {
+      "src": "/api/mainBottomBanner",
+      "dest": "/api/mainBottomBanner"
+    },
+    {
+      "src": "/api/mainBanner",
+      "dest": "/api/mainBanner"
+    },
+    {
+      "src": "/api/mainAboutCompany",
+      "dest": "/api/mainAboutCompany"
+    },
+    {
+      "src": "/api/labPrices",
+      "dest": "/api/labPrices"
+    },
+    {
+      "src": "/api/labPark",
+      "dest": "/api/labPark"
+    },
+    {
+      "src": "/api/labObjects",
+      "dest": "/api/labObjects"
+    },
+    {
+      "src": "/api/labInfoAfterBanner",
+      "dest": "/api/labInfoAfterBanner"
+    },
+    {
+      "src": "/api/labBottom",
+      "dest": "/api/labBottom"
+    },
+    {
+      "src": "/api/labBanner",
+      "dest": "/api/labBanner"
+    },
+    {
+      "src": "/api/infocontacts",
+      "dest": "/api/infocontacts"
+    },
+    {
+      "src": "/api/detailPageInfo",
+      "dest": "/api/detailPageInfo"
+    },
+    {
+      "src": "/api/designersPage",
+      "dest": "/api/designersPage"
+    },
+    {
+      "src": "/api/construction",
+      "dest": "/api/construction"
+    },
+    {
+      "src": "/api/compound",
+      "dest": "/api/compound"
+    },
+    {
+      "src": "/api/awards",
+      "dest": "/api/awards"
+    },
+    {
+      "src": "/about",
+      "dest": "/about"
+    },
+    {
+      "src": "/404",
+      "dest": "/404"
+    },
+    {
+      "src": "/__nuxt_error",
+      "dest": "/__nuxt_error"
+    },
+    {
+      "src": "/",
+      "dest": "/index"
+    },
+    {
+      "src": "/services/(?<code>[^/]+)",
+      "dest": "/services/[code]"
+    },
+    {
+      "src": "/news/(?<code>[^/]+)",
+      "dest": "/news/[code]"
+    },
+    {
+      "src": "/api/_nuxt_icon/(?<collection>[^/]+)",
+      "dest": "/api/_nuxt_icon/[collection]"
+    },
+    {
+      "src": "/product-page/?(?<path>.+)",
+      "dest": "/product-page/[...path]"
+    },
+    {
+      "src": "/product-card/?(?<path>.+)",
+      "dest": "/product-card/[...path]"
+    },
+    {
+      "src": "/catalog/?(?<path>.+)",
+      "dest": "/catalog/[...path]"
+    },
+    {
+      "src": "/_ipx/(?:.*)",
+      "dest": "/_ipx/[...]"
+    },
+    {
+      "src": "/__nuxt_island/(?:.*)",
+      "dest": "/__nuxt_island/[...]"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/__nitro"
+    }
+  ]
+}
