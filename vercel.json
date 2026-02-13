@@ -2,11 +2,15 @@
 	"buildCommand": "npm run build",
 	"rewrites": [
 		{
+			"source": "/piktube/api/(.*)",
+			"destination": "/api/$1"
+		},
+		{
 			"source": "/",
 			"destination": "/piktube/"
 		},
 		{
-			"source": "/((?!piktube/).*)",
+			"source": "/((?!(piktube/|api/)).*)",
 			"destination": "/piktube/$1"
 		}
 	]
