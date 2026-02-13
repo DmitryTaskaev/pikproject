@@ -4204,7 +4204,7 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/piktube/",
-    "buildId": "8960503f-66c2-4e65-8cfb-91dbdc0cdd7d",
+    "buildId": "650fedc7-49d4-4187-91bf-a4dcc6ec5a2f",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
