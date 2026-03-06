@@ -84,13 +84,12 @@ const imageStyle = computed(() => {
 				</div>
 				<div class="p-p-hero__image" :style="imageStyle"></div>
 				<div class="p-p-hero__desc">
-					<Text
+					<div
 						v-for="(item, index) in resolvedDescriptions"
 						:key="index"
-						class="p-p-hero__desc--item"
-					>
-						{{ item }}
-					</Text>
+						class="p-p-hero__desc--item text text_size-lg text_weight-regular text_line-height-lg text_letter-spacing-sm"
+						v-html="item"
+					/>
 				</div>
 				<div class="p-p-hero__measures">
 					<div

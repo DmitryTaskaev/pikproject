@@ -536,10 +536,14 @@ const slides = computed(() => {
 })
 
 const heroTitle = computed(() => section.value?.NAME || '')
+const normalizeSectionDescription = (value?: string) => {
+	if (!value) return ''
+	return decodeHtml(value).trim()
+}
+
 const heroDescriptions = computed(() => {
-	const description = section.value?.DESCRIPTION
-	if (!description) return []
-	return [decodeHtml(description)]
+	const description = normalizeSectionDescription(section.value?.DESCRIPTION)
+	return description ? [description] : []
 })
 
 const heroMeasures = computed(() => {
