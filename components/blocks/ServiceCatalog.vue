@@ -51,8 +51,12 @@ const fallbackServicesList = [
 ]
 
 const config = useRuntimeConfig()
-const { data: servicesData } = await useAsyncData('servicesCatalogHome', () =>
-	$fetch<ServicesResponse>(`${config.app.baseURL}api/services`),
+const { data: servicesData } = await useLocalizedAsyncData(
+	'servicesCatalogHome',
+	lang =>
+		$fetch<ServicesResponse>(`${config.app.baseURL}api/services`, {
+			query: { lang },
+		}),
 )
 
 const servicesList = computed(() => {

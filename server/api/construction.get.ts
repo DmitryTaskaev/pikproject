@@ -1,7 +1,9 @@
 import { createError, getQuery } from 'h3'
+import { getApiBase } from '../utils/api'
 
 export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
@@ -20,7 +22,7 @@ export default defineEventHandler(async event => {
 		})
 	}
 
-	return await $fetch(`${config.apiBase}/construction`, {
+	return await $fetch(`${apiBase}/construction`, {
 		headers,
 		query: {
 			section_id: query.section_id,

@@ -26,16 +26,18 @@ const itemCode = computed(() => pathSegments.value[pathSegments.value.length - 1
 const sectionSegments = computed(() => pathSegments.value.slice(0, -1))
 const sectionPath = computed(() => sectionSegments.value.join('/'))
 
-const { data: treeData } = await useAsyncData('productsTree', () =>
-	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`),
+const { data: treeData } = await useLocalizedAsyncData('productsTree', lang =>
+	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
+		query: { lang },
+	}),
 )
 
-const { data: sectionData } = await useAsyncData(
+const { data: sectionData } = await useLocalizedAsyncData(
 	() => `product-page-section-${sectionPath.value}`,
-	() =>
+	lang =>
 		sectionPath.value
 			? $fetch<ProductSectionDetailResponse>(`${config.app.baseURL}api/products`, {
-					query: { path: sectionPath.value },
+					query: { path: sectionPath.value, lang },
 				})
 			: null,
 	{ watch: [sectionPath] },

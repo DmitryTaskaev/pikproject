@@ -20,9 +20,12 @@ interface DetailPageInfoResponse {
 }
 
 const config = useRuntimeConfig()
-const { data: detailPageInfoData } = await useAsyncData(
+const { data: detailPageInfoData } = await useLocalizedAsyncData(
 	'detailPageInfo',
-	() => $fetch<DetailPageInfoResponse>(`${config.app.baseURL}api/detailPageInfo`),
+	lang =>
+		$fetch<DetailPageInfoResponse>(`${config.app.baseURL}api/detailPageInfo`, {
+			query: { lang },
+		}),
 )
 
 const decodeHtml = (value: string) => {

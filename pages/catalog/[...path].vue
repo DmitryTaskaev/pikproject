@@ -132,8 +132,10 @@ const withBasePath = (path: string) => {
 	return `${baseNormalized}${normalized}`
 }
 
-const { data: treeData } = await useAsyncData('productsTree', () =>
-	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`),
+const { data: treeData } = await useLocalizedAsyncData('productsTree', lang =>
+	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
+		query: { lang },
+	}),
 )
 
 const pathIsSection = computed(() => {
@@ -147,19 +149,21 @@ const viewNodeForItem = computed(() => {
 	return findSectionByPath(tree, sectionSegmentsForItem.value)
 })
 
-const { data: sectionData } = await useAsyncData(
+const { data: sectionData } = await useLocalizedAsyncData(
 	() => `catalog-section-${pathString.value}`,
-	async () => {
+	async lang => {
 		if (!pathString.value) return null
 		const primary = await $fetch<ProductSectionDetailResponse>(
 			`${config.app.baseURL}api/products`,
-			{ query: { path: pathString.value } },
+			{ query: { path: pathString.value, lang } },
 		)
 		if (pathIsSection.value) return primary
 		if (itemCode.value && viewNodeForItem.value?.SECTION?.ID) {
 			const byId = await $fetch<ProductSectionDetailResponse>(
 				`${config.app.baseURL}api/products`,
-				{ query: { section_id: viewNodeForItem.value.SECTION.ID } },
+				{
+					query: { section_id: viewNodeForItem.value.SECTION.ID, lang },
+				},
 			)
 			if ((byId?.data?.ITEMS || []).length > 0) return byId
 		}
@@ -173,7 +177,7 @@ const { data: sectionData } = await useAsyncData(
 		if (shouldFallback) {
 			return $fetch<ProductSectionDetailResponse>(
 				`${config.app.baseURL}api/products`,
-				{ query: { path: sectionPathForItem.value } },
+				{ query: { path: sectionPathForItem.value, lang } },
 			)
 		}
 		return primary
@@ -264,14 +268,15 @@ const constructionSectionId = computed(() => {
 		.filter(Boolean)[0]
 })
 
-const { data: constructionData } = await useAsyncData(
+const { data: constructionData } = await useLocalizedAsyncData(
 	() => `catalog-construction-${constructionSectionId.value}`,
-	() =>
+	lang =>
 		constructionSectionId.value
 			? $fetch<ConstructionResponse>(`${config.app.baseURL}api/construction`, {
 					query: {
 						section_id: constructionSectionId.value,
 						include_subsections: 1,
+						lang,
 					},
 				})
 			: null,
@@ -328,14 +333,15 @@ const compoundSectionId = computed(() => {
 		.filter(Boolean)[0]
 })
 
-const { data: compoundData } = await useAsyncData(
+const { data: compoundData } = await useLocalizedAsyncData(
 	() => `catalog-compound-${compoundSectionId.value}`,
-	() =>
+	lang =>
 		compoundSectionId.value
 			? $fetch<CompoundResponse>(`${config.app.baseURL}api/compound`, {
 					query: {
 						section_id: compoundSectionId.value,
 						include_subsections: 1,
+						lang,
 					},
 				})
 			: null,
@@ -597,15 +603,15 @@ const viewIds = computed(() =>
 	tableViewSections.value.map(entry => entry.node.SECTION.ID).join(','),
 )
 
-const { data: viewDetailsData } = await useAsyncData(
+const { data: viewDetailsData } = await useLocalizedAsyncData(
 	() => `catalog-view-items-${pathString.value}-${viewIds.value}`,
-	async () => {
+	async lang => {
 		if (!viewIds.value) return []
 		const entries = tableViewSections.value
 		const responses = await Promise.all(
 			entries.map(entry =>
 				$fetch<ProductSectionDetailResponse>(`${config.app.baseURL}api/products`, {
-					query: { section_id: entry.node.SECTION.ID },
+					query: { section_id: entry.node.SECTION.ID, lang },
 				}),
 			),
 		)
@@ -1076,12 +1082,12 @@ const serviceSectionId = computed(() => {
 		.filter(Boolean)[0]
 })
 
-const { data: servicesData } = await useAsyncData(
+const { data: servicesData } = await useLocalizedAsyncData(
 	() => `catalog-services-${serviceSectionId.value}`,
-	() =>
+	lang =>
 		serviceSectionId.value
 			? $fetch<ServicesDetailResponse>(`${config.app.baseURL}api/services`, {
-					query: { section_id: serviceSectionId.value },
+					query: { section_id: serviceSectionId.value, lang },
 				})
 			: null,
 	{ watch: [serviceSectionId] },

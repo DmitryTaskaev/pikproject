@@ -1,4 +1,5 @@
 import { createError, getQuery } from 'h3'
+import { getApiBase } from '../utils/api'
 
 interface ProductSectionNode {
 	SECTION: {
@@ -27,6 +28,7 @@ const findByPath = (
 
 export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
@@ -40,7 +42,7 @@ export default defineEventHandler(async event => {
 	}
 
 	if (query.section_id) {
-		return await $fetch(`${config.apiBase}/products`, {
+		return await $fetch(`${apiBase}/products`, {
 			headers,
 			query: { section_id: query.section_id },
 		})
@@ -53,7 +55,7 @@ export default defineEventHandler(async event => {
 		}
 		const segments = rawPath.split('/').filter(Boolean)
 		const listResponse = await $fetch<{ data?: { TREE?: ProductSectionNode[] } }>(
-			`${config.apiBase}/products`,
+			`${apiBase}/products`,
 			{ headers },
 		)
 		const tree = listResponse.data?.TREE || []
@@ -66,7 +68,7 @@ export default defineEventHandler(async event => {
 			})
 		}
 
-		return await $fetch(`${config.apiBase}/products`, {
+		return await $fetch(`${apiBase}/products`, {
 			headers,
 			query: { section_id: match.SECTION.ID },
 		})
@@ -75,7 +77,7 @@ export default defineEventHandler(async event => {
 	if (query.code) {
 		const normalizedCode = String(query.code).trim()
 		const listResponse = await $fetch<{ data?: { TREE?: ProductSectionNode[] } }>(
-			`${config.apiBase}/products`,
+			`${apiBase}/products`,
 			{ headers },
 		)
 		const tree = listResponse.data?.TREE || []
@@ -93,7 +95,7 @@ export default defineEventHandler(async event => {
 		const match = walk(tree)
 		if (!match?.SECTION?.ID) {
 			if (/^\d+$/.test(normalizedCode)) {
-				return await $fetch(`${config.apiBase}/products`, {
+				return await $fetch(`${apiBase}/products`, {
 					headers,
 					query: { section_id: normalizedCode },
 				})
@@ -104,11 +106,11 @@ export default defineEventHandler(async event => {
 			})
 		}
 
-		return await $fetch(`${config.apiBase}/products`, {
+		return await $fetch(`${apiBase}/products`, {
 			headers,
 			query: { section_id: match.SECTION.ID },
 		})
 	}
 
-	return await $fetch(`${config.apiBase}/products`, { headers })
+	return await $fetch(`${apiBase}/products`, { headers })
 })

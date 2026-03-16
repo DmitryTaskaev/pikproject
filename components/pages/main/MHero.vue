@@ -51,8 +51,12 @@ const fallbackSlides: MainSlideProps[] = [
 ]
 
 const config = useRuntimeConfig()
-const { data: mainBannerData } = await useAsyncData('mainBanner', () =>
-	$fetch<MainBannerResponse>(`${config.app.baseURL}api/mainBanner`),
+const { data: mainBannerData } = await useLocalizedAsyncData(
+	'mainBanner',
+	lang =>
+		$fetch<MainBannerResponse>(`${config.app.baseURL}api/mainBanner`, {
+			query: { lang },
+		}),
 )
 
 const resolveBannerSrc = (src: string) => {

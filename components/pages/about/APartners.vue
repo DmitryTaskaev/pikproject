@@ -19,8 +19,10 @@ interface MainTrustResponse {
 }
 
 const config = useRuntimeConfig()
-const { data: trustData } = await useAsyncData('mainTrust', () =>
-	$fetch<MainTrustResponse>(`${config.app.baseURL}api/mainTrust`),
+const { data: trustData } = await useLocalizedAsyncData('mainTrust', lang =>
+	$fetch<MainTrustResponse>(`${config.app.baseURL}api/mainTrust`, {
+		query: { lang },
+	}),
 )
 
 const resolveMediaSrc = (src?: string) => {

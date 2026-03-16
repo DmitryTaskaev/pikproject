@@ -1,8 +1,11 @@
 <script setup lang="ts">
-const language = ref('РУ')
 const { isSearchActive, openSearch } = useSearch()
+const { language, languageLabel, setLanguage } = useSiteLanguage()
 
-const languageList = ref(['РУ', 'EN'])
+const languageList = [
+	{ label: 'РУ', value: 'ru' },
+	{ label: 'EN', value: 'en' },
+]
 
 const dropdownIsVisible = ref(false)
 
@@ -10,10 +13,19 @@ function languageDropdownHandler() {
 	dropdownIsVisible.value = !dropdownIsVisible.value
 }
 
-function selectLanguage(selectedLang: string) {
-	language.value = selectedLang
+function selectLanguage(selectedLang: 'ru' | 'en') {
+	if (selectedLang === language.value) {
+		dropdownIsVisible.value = false
+		return
+	}
 
+	setLanguage(selectedLang)
 	dropdownIsVisible.value = false
+
+	if (import.meta.client) {
+		clearNuxtData()
+		window.location.reload()
+	}
 }
 
 function handleSearch() {
@@ -37,25 +49,25 @@ function handleSearch() {
 				@click="languageDropdownHandler"
 			>
 				<Text tag="span" size="sm" line-height="xl" design="secondary">
-					{{ language }}
+					{{ languageLabel }}
 				</Text>
 				<Icon name="base-arrow" />
 				<div class="header-actions__language--list">
 					<Text
-						v-for="value in languageList"
-						:key="value"
+						v-for="item in languageList"
+						:key="item.value"
 						:class="[
 							'header-actions__language--list_item',
-							value === language
+							item.value === language
 								? 'header-actions__language--list_item_active'
 								: '',
 						]"
 						tag="span"
 						size="sm"
 						line-height="sm"
-						@click.stop="selectLanguage(value)"
+						@click.stop="selectLanguage(item.value)"
 					>
-						{{ value }}
+						{{ item.label }}
 					</Text>
 				</div>
 			</div>

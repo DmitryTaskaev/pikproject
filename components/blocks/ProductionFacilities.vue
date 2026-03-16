@@ -59,15 +59,18 @@ const fallbackDescList = [
 
 const config = useRuntimeConfig()
 const mainTextImageData = props.useApi
-	? await useAsyncData('mainTextImage', () =>
-			$fetch<MainTextImageResponse>(`${config.app.baseURL}api/mainTextImage`),
+	? await useLocalizedAsyncData('mainTextImage', lang =>
+			$fetch<MainTextImageResponse>(`${config.app.baseURL}api/mainTextImage`, {
+				query: { lang },
+			}),
 		)
 	: { data: ref<MainTextImageResponse | null>(null) }
 
 const mainSliderBottomData = props.useApi
-	? await useAsyncData('mainSliderBottom', () =>
+	? await useLocalizedAsyncData('mainSliderBottom', lang =>
 			$fetch<MainSliderBottomResponse>(
 				`${config.app.baseURL}api/mainSliderBottom`,
+				{ query: { lang } },
 			),
 		)
 	: { data: ref<MainSliderBottomResponse | null>(null) }

@@ -1,4 +1,5 @@
 import { createError, getQuery } from 'h3'
+import { getApiBase } from '../utils/api'
 
 interface NewsItem {
 	ID: string
@@ -7,6 +8,7 @@ interface NewsItem {
 
 export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
@@ -21,7 +23,7 @@ export default defineEventHandler(async event => {
 	}
 
 	if (query.id) {
-		return await $fetch(`${config.apiBase}/news`, {
+		return await $fetch(`${apiBase}/news`, {
 			headers,
 			query: { id: query.id },
 		})
@@ -29,7 +31,7 @@ export default defineEventHandler(async event => {
 
 	if (query.code) {
 		const listResponse = await $fetch<{ data?: { items?: NewsItem[] } }>(
-			`${config.apiBase}/news`,
+			`${apiBase}/news`,
 			{ headers },
 		)
 		const match = listResponse.data?.items?.find(
@@ -43,13 +45,13 @@ export default defineEventHandler(async event => {
 			})
 		}
 
-		return await $fetch(`${config.apiBase}/news`, {
+		return await $fetch(`${apiBase}/news`, {
 			headers,
 			query: { id: match.ID },
 		})
 	}
 
-	return await $fetch(`${config.apiBase}/news`, {
+	return await $fetch(`${apiBase}/news`, {
 		headers,
 		query: {
 			page: query.page,

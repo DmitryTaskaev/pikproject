@@ -26,11 +26,11 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const code = computed(() => String(route.params.code || ''))
 
-const { data: newsData } = await useAsyncData(
-	`news-${code.value}`,
-	() =>
+const { data: newsData } = await useLocalizedAsyncData(
+	() => `news-${code.value}`,
+	lang =>
 		$fetch<NewsDetailResponse>(`${config.app.baseURL}api/news`, {
-			query: { code: code.value },
+			query: { code: code.value, lang },
 		}),
 	{ watch: [code] },
 )

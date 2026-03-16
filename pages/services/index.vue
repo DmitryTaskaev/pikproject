@@ -66,14 +66,26 @@ const fallbackHeroTexts = [
 const fallbackHeroTitle = 'Услуги'
 
 const config = useRuntimeConfig()
-const { data: servicesData } = await useAsyncData('servicesCatalog', () =>
-	$fetch<ServicesResponse>(`${config.app.baseURL}api/services`),
+const { data: servicesData } = await useLocalizedAsyncData(
+	'servicesCatalog',
+	lang =>
+		$fetch<ServicesResponse>(`${config.app.baseURL}api/services`, {
+			query: { lang },
+		}),
 )
-const { data: servicesTopData } = await useAsyncData('servicesTop', () =>
-	$fetch<ServicesTopResponse>(`${config.app.baseURL}api/servicesTop`),
+const { data: servicesTopData } = await useLocalizedAsyncData(
+	'servicesTop',
+	lang =>
+		$fetch<ServicesTopResponse>(`${config.app.baseURL}api/servicesTop`, {
+			query: { lang },
+		}),
 )
-const { data: serviceSeoData } = await useAsyncData('serviceSeo', () =>
-	$fetch<ServiceSeoResponse>(`${config.app.baseURL}api/serviceSeo`),
+const { data: serviceSeoData } = await useLocalizedAsyncData(
+	'serviceSeo',
+	lang =>
+		$fetch<ServiceSeoResponse>(`${config.app.baseURL}api/serviceSeo`, {
+			query: { lang },
+		}),
 )
 
 const decodeHtml = (value: string) => {

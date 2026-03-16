@@ -1,17 +1,20 @@
+import { getApiBase } from '../utils/api'
+
 interface ServicesTopResponse {
 	status: string
 	data: unknown
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
 		headers['X-API-KEY'] = config.apiKey
 	}
 
-	return await $fetch<ServicesTopResponse>(`${config.apiBase}/servicesTop`, {
+	return await $fetch<ServicesTopResponse>(`${apiBase}/servicesTop`, {
 		headers,
 	})
 })

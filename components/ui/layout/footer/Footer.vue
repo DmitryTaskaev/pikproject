@@ -12,6 +12,12 @@ interface MenuSection {
 interface MenuItem {
 	NAME?: string
 	SORT?: string
+	PROPERTY_URL_TO_VALUE?: string | null
+	PROPERTIES?: {
+		URL_TO?: {
+			VALUE?: string | null
+		}
+	}
 }
 
 interface MenuResponse {
@@ -29,35 +35,24 @@ interface FooterEntry {
 }
 
 const config = useRuntimeConfig()
-const { data: menuData } = await useAsyncData('menu', () =>
-	$fetch<MenuResponse>(`${config.app.baseURL}api/menu`),
+const { data: menuData } = await useLocalizedAsyncData('menu', lang =>
+	$fetch<MenuResponse>(`${config.app.baseURL}api/menu`, {
+		query: { lang },
+	}),
 )
 
 const basePrefix = config.app.baseURL.replace(/\/$/, '')
 
-const resolveHref = (name?: string, url?: string) => {
-	const map: Record<string, string> = {
-		'О компании': '/about',
-		'О нас': '/about',
-		Новости: '/news',
-		Награды: '/awards',
-		Реквизиты: '/details',
-		Продукция: '/catalog',
-		Услуги: '/services',
-		Фитинги: '/',
-		Лаборатория: '/lab',
-		Проектировщики: '/pro',
-		Проектировщикам: '/pro',
-		Контакты: '/contacts',
-	}
-
-	const fromMap = name ? map[name] : undefined
-	const raw = fromMap || url || '#'
+const resolveHref = (url?: string | null) => {
+	const raw = url || '#'
 
 	if (/^https?:\/\//.test(raw)) return raw
 	if (raw.startsWith('/')) return `${basePrefix}${raw}`
 	return raw
 }
+
+const resolveItemUrl = (item?: MenuItem) =>
+	item?.PROPERTIES?.URL_TO?.VALUE || item?.PROPERTY_URL_TO_VALUE || ''
 
 const buildFooterEntries = () => {
 	const tree = menuData.value?.data?.TREE || []
@@ -65,7 +60,7 @@ const buildFooterEntries = () => {
 
 	const sections: FooterEntry[] = tree.map(section => {
 		const sectionTitle = section.SECTION?.NAME || ''
-		const sectionHref = resolveHref(sectionTitle, section.SECTION?.UF_URL_TO)
+		const sectionHref = resolveHref(section.SECTION?.UF_URL_TO)
 
 		const childSections = (section.CHILDREN || [])
 			.slice()
@@ -74,10 +69,7 @@ const buildFooterEntries = () => {
 			)
 			.map(child => ({
 				title: child.SECTION?.NAME || '',
-				href: resolveHref(
-					child.SECTION?.NAME,
-					child.SECTION?.UF_URL_TO || section.SECTION?.UF_URL_TO,
-				),
+				href: resolveHref(child.SECTION?.UF_URL_TO || section.SECTION?.UF_URL_TO),
 			}))
 			.filter(item => item.title)
 
@@ -86,7 +78,7 @@ const buildFooterEntries = () => {
 			.sort((a, b) => Number(a.SORT || 0) - Number(b.SORT || 0))
 			.map(item => ({
 				title: item.NAME || '',
-				href: resolveHref(item.NAME, section.SECTION?.UF_URL_TO),
+				href: resolveHref(resolveItemUrl(item) || section.SECTION?.UF_URL_TO),
 			}))
 			.filter(item => item.title)
 
@@ -102,7 +94,7 @@ const buildFooterEntries = () => {
 
 	const roots: FooterEntry[] = rootItems.map(item => ({
 		title: item.NAME || '',
-		href: resolveHref(item.NAME),
+		href: resolveHref(resolveItemUrl(item)),
 		sort: Number(item.SORT || 0),
 	}))
 

@@ -7,13 +7,19 @@ interface MenuSection {
 		SORT?: string
 		UF_URL_TO?: string
 	}
-	ITEMS?: unknown[]
+	ITEMS?: MenuItem[]
 	CHILDREN?: unknown[]
 }
 
 interface MenuItem {
 	NAME?: string
 	SORT?: string
+	PROPERTY_URL_TO_VALUE?: string | null
+	PROPERTIES?: {
+		URL_TO?: {
+			VALUE?: string | null
+		}
+	}
 }
 
 interface MenuResponse {
@@ -24,35 +30,24 @@ interface MenuResponse {
 }
 
 const config = useRuntimeConfig()
-const { data: menuData } = await useAsyncData('menu', () =>
-	$fetch<MenuResponse>(`${config.app.baseURL}api/menu`),
+const { data: menuData } = await useLocalizedAsyncData('menu', lang =>
+	$fetch<MenuResponse>(`${config.app.baseURL}api/menu`, {
+		query: { lang },
+	}),
 )
 
 const basePrefix = config.app.baseURL.replace(/\/$/, '')
 
-const resolveHref = (name?: string, url?: string) => {
-	const map: Record<string, string> = {
-		'О компании': '/about',
-		'О нас': '/about',
-		Новости: '/news',
-		Награды: '/awards',
-		Реквизиты: '/details',
-		Продукция: '/catalog',
-		Услуги: '/services',
-		Фитинги: '/',
-		Лаборатория: '/lab',
-		Проектировщики: '/pro',
-		Проектировщикам: '/pro',
-		Контакты: '/contacts',
-	}
-
-	const fromMap = name ? map[name] : undefined
-	const raw = fromMap || url || '#'
+const resolveHref = (url?: string | null) => {
+	const raw = url || '#'
 
 	if (/^https?:\/\//.test(raw)) return raw
 	if (raw.startsWith('/')) return `${basePrefix}${raw}`
 	return raw
 }
+
+const resolveItemUrl = (item?: MenuItem) =>
+	item?.PROPERTIES?.URL_TO?.VALUE || item?.PROPERTY_URL_TO_VALUE || ''
 
 const menuItems = computed(() => {
 	const tree = menuData.value?.data?.TREE || []
@@ -60,7 +55,7 @@ const menuItems = computed(() => {
 
 	const sections = tree.map((section, index) => ({
 		text: section.SECTION?.NAME || '',
-		href: resolveHref(section.SECTION?.NAME, section.SECTION?.UF_URL_TO),
+		href: resolveHref(section.SECTION?.UF_URL_TO),
 		sort: Number(section.SECTION?.SORT || 0),
 		index,
 		hasChildren:
@@ -69,7 +64,7 @@ const menuItems = computed(() => {
 
 	const roots = rootItems.map((item, index) => ({
 		text: item.NAME || '',
-		href: resolveHref(item.NAME),
+		href: resolveHref(resolveItemUrl(item)),
 		sort: Number(item.SORT || 0),
 		index: tree.length + index,
 		hasChildren: false,

@@ -53,8 +53,12 @@ interface ProListItem {
 }
 
 const config = useRuntimeConfig()
-const { data: designersData } = await useAsyncData('designersPage', () =>
-	$fetch<DesignersResponse>(`${config.app.baseURL}api/designersPage`),
+const { data: designersData } = await useLocalizedAsyncData(
+	'designersPage',
+	lang =>
+		$fetch<DesignersResponse>(`${config.app.baseURL}api/designersPage`, {
+			query: { lang },
+		}),
 )
 
 const decodeHtml = (value: string) => {

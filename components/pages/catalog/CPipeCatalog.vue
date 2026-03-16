@@ -11,8 +11,12 @@ import {
 
 const config = useRuntimeConfig()
 
-const { data: productsTreeData } = await useAsyncData('productsTree-catalog', () =>
-	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`),
+const { data: productsTreeData } = await useLocalizedAsyncData(
+	'productsTree-catalog',
+	lang =>
+		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
+			query: { lang },
+		}),
 )
 
 const flattenItems = (

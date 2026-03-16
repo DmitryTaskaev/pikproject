@@ -60,8 +60,10 @@ const fallbackSlides = [
 ]
 
 const config = useRuntimeConfig()
-const { data: newsData } = await useAsyncData('newsList', () =>
-	$fetch<NewsListResponse>(`${config.app.baseURL}api/news`),
+const { data: newsData } = await useLocalizedAsyncData('newsList', lang =>
+	$fetch<NewsListResponse>(`${config.app.baseURL}api/news`, {
+		query: { lang },
+	}),
 )
 
 const decodeHtml = (value: string) => {

@@ -132,23 +132,37 @@ const breadcrumbsList = [
 ]
 
 const config = useRuntimeConfig()
-const { data: labBannerData } = await useAsyncData('labBanner', () =>
-	$fetch<LabBannerResponse>(`${config.app.baseURL}api/labBanner`),
+const { data: labBannerData } = await useLocalizedAsyncData('labBanner', lang =>
+	$fetch<LabBannerResponse>(`${config.app.baseURL}api/labBanner`, {
+		query: { lang },
+	}),
 )
-const { data: labInfoData } = await useAsyncData('labInfoAfterBanner', () =>
-	$fetch<LabInfoResponse>(`${config.app.baseURL}api/labInfoAfterBanner`),
+const { data: labInfoData } = await useLocalizedAsyncData(
+	'labInfoAfterBanner',
+	lang =>
+		$fetch<LabInfoResponse>(`${config.app.baseURL}api/labInfoAfterBanner`, {
+			query: { lang },
+		}),
 )
-const { data: labParkData } = await useAsyncData('labPark', () =>
-	$fetch<LabParkResponse>(`${config.app.baseURL}api/labPark`),
+const { data: labParkData } = await useLocalizedAsyncData('labPark', lang =>
+	$fetch<LabParkResponse>(`${config.app.baseURL}api/labPark`, {
+		query: { lang },
+	}),
 )
-const { data: labObjectsData } = await useAsyncData('labObjects', () =>
-	$fetch<LabObjectsResponse>(`${config.app.baseURL}api/labObjects`),
+const { data: labObjectsData } = await useLocalizedAsyncData('labObjects', lang =>
+	$fetch<LabObjectsResponse>(`${config.app.baseURL}api/labObjects`, {
+		query: { lang },
+	}),
 )
-const { data: labPricesData } = await useAsyncData('labPrices', () =>
-	$fetch<LabPricesResponse>(`${config.app.baseURL}api/labPrices`),
+const { data: labPricesData } = await useLocalizedAsyncData('labPrices', lang =>
+	$fetch<LabPricesResponse>(`${config.app.baseURL}api/labPrices`, {
+		query: { lang },
+	}),
 )
-const { data: labBottomData } = await useAsyncData('labBottom', () =>
-	$fetch<LabBottomResponse>(`${config.app.baseURL}api/labBottom`),
+const { data: labBottomData } = await useLocalizedAsyncData('labBottom', lang =>
+	$fetch<LabBottomResponse>(`${config.app.baseURL}api/labBottom`, {
+		query: { lang },
+	}),
 )
 
 const decodeHtml = (value: string) => {

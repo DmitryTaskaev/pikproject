@@ -150,8 +150,12 @@ interface ProductCatalogProps {
 const { isBorder } = defineProps<ProductCatalogProps>()
 
 const config = useRuntimeConfig()
-const { data: productsData } = await useAsyncData('productsCatalog', () =>
-	$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`),
+const { data: productsData } = await useLocalizedAsyncData(
+	'productsCatalog',
+	lang =>
+		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
+			query: { lang },
+		}),
 )
 
 const makeSectionHref = (section: ProductSectionNode, path: string[]) => {

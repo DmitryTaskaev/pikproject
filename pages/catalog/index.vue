@@ -22,8 +22,12 @@ interface ProductsListResponse {
 	}
 }
 
-const { data: productsListData } = await useAsyncData('productsList', () =>
-	$fetch<ProductsListResponse>(`${config.app.baseURL}api/productsList`),
+const { data: productsListData } = await useLocalizedAsyncData(
+	'productsList',
+	lang =>
+		$fetch<ProductsListResponse>(`${config.app.baseURL}api/productsList`, {
+			query: { lang },
+		}),
 )
 
 const productsListItems = computed(() => productsListData.value?.data?.items || [])

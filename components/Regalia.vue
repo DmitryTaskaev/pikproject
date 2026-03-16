@@ -57,8 +57,12 @@ const fallbackRegaliaList: RegaliaCardProps[] = [
 ]
 
 const config = useRuntimeConfig()
-const { data: threeBlockMainData } = await useAsyncData('threeBlockMain', () =>
-	$fetch<ThreeBlockMainResponse>(`${config.app.baseURL}api/threeBlockMain`),
+const { data: threeBlockMainData } = await useLocalizedAsyncData(
+	'threeBlockMain',
+	lang =>
+		$fetch<ThreeBlockMainResponse>(`${config.app.baseURL}api/threeBlockMain`, {
+			query: { lang },
+		}),
 )
 
 const splitLines = (value?: string) => {

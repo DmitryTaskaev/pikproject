@@ -1,3 +1,5 @@
+import { getApiBase } from '../utils/api'
+
 interface MainBottomBannerIcon {
 	SRC: string
 }
@@ -23,8 +25,9 @@ interface MainBottomBannerResponse {
 	}
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
@@ -32,7 +35,7 @@ export default defineEventHandler(async () => {
 	}
 
 	return await $fetch<MainBottomBannerResponse>(
-		`${config.apiBase}/mainBottomBanner`,
+		`${apiBase}/mainBottomBanner`,
 		{ headers },
 	)
 })

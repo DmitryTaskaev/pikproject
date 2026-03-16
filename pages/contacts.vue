@@ -96,8 +96,12 @@ const fallbackSections = [
 ]
 
 const config = useRuntimeConfig()
-const { data: infoContactsData } = await useAsyncData('infoContacts', () =>
-	$fetch<InfoContactsResponse>(`${config.app.baseURL}api/infocontacts`),
+const { data: infoContactsData } = await useLocalizedAsyncData(
+	'infoContacts',
+	lang =>
+		$fetch<InfoContactsResponse>(`${config.app.baseURL}api/infocontacts`, {
+			query: { lang },
+		}),
 )
 
 const splitAddress = (value?: string) => {

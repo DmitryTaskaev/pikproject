@@ -148,11 +148,11 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const page = computed(() => Number(route.query.page || 1) || 1)
 
-const { data: newsData } = await useAsyncData(
+const { data: newsData } = await useLocalizedAsyncData(
 	() => `newsList-${page.value}`,
-	() =>
+	lang =>
 		$fetch<NewsListResponse>(`${config.app.baseURL}api/news`, {
-			query: { page: page.value },
+			query: { page: page.value, lang },
 		}),
 	{ watch: [page] },
 )

@@ -1,4 +1,5 @@
 import { createError, getQuery } from 'h3'
+import { getApiBase } from '../utils/api'
 
 interface ServiceSection {
 	SECTION: {
@@ -10,6 +11,7 @@ interface ServiceSection {
 
 export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
@@ -19,7 +21,7 @@ export default defineEventHandler(async event => {
 	const query = getQuery(event) as { section_id?: string; code?: string }
 
 	if (query.section_id) {
-		return await $fetch(`${config.apiBase}/services`, {
+		return await $fetch(`${apiBase}/services`, {
 			headers,
 			query: { section_id: query.section_id },
 		})
@@ -28,7 +30,7 @@ export default defineEventHandler(async event => {
 	if (query.code) {
 		const normalizedCode = String(query.code).trim()
 		const listResponse = await $fetch<{ data?: { TREE?: ServiceSection[] } }>(
-			`${config.apiBase}/services`,
+			`${apiBase}/services`,
 			{ headers },
 		)
 		const match = listResponse.data?.TREE?.find(item => {
@@ -38,7 +40,7 @@ export default defineEventHandler(async event => {
 
 		if (!match?.SECTION?.ID) {
 			if (/^\d+$/.test(normalizedCode)) {
-				return await $fetch(`${config.apiBase}/services`, {
+				return await $fetch(`${apiBase}/services`, {
 					headers,
 					query: { section_id: normalizedCode },
 				})
@@ -49,11 +51,11 @@ export default defineEventHandler(async event => {
 			})
 		}
 
-		return await $fetch(`${config.apiBase}/services`, {
+		return await $fetch(`${apiBase}/services`, {
 			headers,
 			query: { section_id: match.SECTION.ID },
 		})
 	}
 
-	return await $fetch(`${config.apiBase}/services`, { headers })
+	return await $fetch(`${apiBase}/services`, { headers })
 })

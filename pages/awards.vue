@@ -30,8 +30,10 @@ const fallbackTexts = [
 ]
 
 const config = useRuntimeConfig()
-const { data: awardsData } = await useAsyncData('awards', () =>
-	$fetch<AwardsResponse>(`${config.app.baseURL}api/awards`),
+const { data: awardsData } = await useLocalizedAsyncData('awards', lang =>
+	$fetch<AwardsResponse>(`${config.app.baseURL}api/awards`, {
+		query: { lang },
+	}),
 )
 
 const splitText = (value?: string) => {

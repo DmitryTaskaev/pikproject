@@ -51,9 +51,13 @@ const fallbackBenefitsList: { icon: IconProps; title: string }[] = [
 ]
 
 const config = useRuntimeConfig()
-const { data: mainBottomBannerData } = await useAsyncData(
+const { data: mainBottomBannerData } = await useLocalizedAsyncData(
 	'mainBottomBanner',
-	() => $fetch<MainBottomBannerResponse>(`${config.app.baseURL}api/mainBottomBanner`),
+	lang =>
+		$fetch<MainBottomBannerResponse>(
+			`${config.app.baseURL}api/mainBottomBanner`,
+			{ query: { lang } },
+		),
 )
 
 const resolveIconSrc = (src?: string) => {

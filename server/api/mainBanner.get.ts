@@ -1,3 +1,5 @@
+import { getApiBase } from '../utils/api'
+
 interface MainBannerItem {
 	ID: string
 	NAME: string
@@ -18,15 +20,16 @@ interface MainBannerResponse {
 	}
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async event => {
 	const config = useRuntimeConfig()
+	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
 
 	if (config.apiKey) {
 		headers['X-API-KEY'] = config.apiKey
 	}
 
-	return await $fetch<MainBannerResponse>(`${config.apiBase}/mainBanner`, {
+	return await $fetch<MainBannerResponse>(`${apiBase}/mainBanner`, {
 		headers,
 	})
 })

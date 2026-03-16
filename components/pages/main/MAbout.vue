@@ -36,11 +36,18 @@ interface MainTrustResponse {
 }
 
 const config = useRuntimeConfig()
-const { data: aboutCompanyData } = await useAsyncData('mainAboutCompany', () =>
-	$fetch<MainAboutCompanyResponse>(`${config.app.baseURL}api/mainAboutCompany`),
+const { data: aboutCompanyData } = await useLocalizedAsyncData(
+	'mainAboutCompany',
+	lang =>
+		$fetch<MainAboutCompanyResponse>(
+			`${config.app.baseURL}api/mainAboutCompany`,
+			{ query: { lang } },
+		),
 )
-const { data: trustData } = await useAsyncData('mainTrust', () =>
-	$fetch<MainTrustResponse>(`${config.app.baseURL}api/mainTrust`),
+const { data: trustData } = await useLocalizedAsyncData('mainTrust', lang =>
+	$fetch<MainTrustResponse>(`${config.app.baseURL}api/mainTrust`, {
+		query: { lang },
+	}),
 )
 
 const decodeHtml = (value: string) => {
