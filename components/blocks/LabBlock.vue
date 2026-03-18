@@ -13,33 +13,45 @@ interface LabBlockProps {
 	topButton?: ButtonProps
 	bottomButton?: ButtonProps
 }
-const props = withDefaults(defineProps<LabBlockProps>(), {
-	titleTag: 'h2',
-	title: 'Лаборатория',
-	cardTitle:
-		'Испытательная лаборатория ООО «ПИК» — это современный аккредитованный испытательный центр.',
-	descList: () => [
-		'Мы специализируемся на испытаниях полимерных и стальных труб и их фитингов с различными видами изоляции для водоснабжения, газоснабжения, канализации и промышленных нужд. В распоряжении испытательной лаборатории — передовое оборудование, соответствующее государственным стандартам. Сотрудники лаборатории строго придерживаются методов испытаний и процедур, обеспечивающих объективность и точность результатов.',
-		'Команда испытательной лаборатории ООО «ПИК» нацелена на поддержание уровня компетенций и гарантирует соблюдение всех норм и стандартов качества в каждом проведённом исследовании.',
-		'Номер записи в реестре аккредитованных лиц&nbsp;RA.RU.21РН88',
-	],
-	emails: () => ['info@piktube.ru', 'lab@piktube.ru'],
-	phones: () => ['+7 (800) 25-09-288'],
-	topButton: () => ({ text: 'Смотреть аккредитацию', size: 'sm', href: '#' }),
-	bottomButton: () => ({
-		text: 'Подробнее о компании',
-		size: 'lg',
-		href: '/piktube/about',
-	}),
-})
+const { t } = useSiteI18n()
+const props = defineProps<LabBlockProps>()
 
 const normalizeNbsp = (s: string) => s.replaceAll('&nbsp;', '\u00A0')
 const splitByBr = (s: string) =>
 	normalizeNbsp(s).split(/<\/?br\s*\/?>/i)
 
-const descLines = computed(() => props.descList.map(t => splitByBr(t)))
-const emailLinks = computed(() => props.emails.filter(Boolean))
-const phoneLinks = computed(() => props.phones.filter(Boolean))
+const resolvedTitleTag = computed(() => props.titleTag || 'h2')
+const resolvedTitle = computed(() => props.title || String(t('lab_title')))
+const resolvedCardTitle = computed(
+	() => props.cardTitle || String(t('lab_card_title')),
+)
+const resolvedDescList = computed(() =>
+	props.descList || [
+		String(t('lab_desc_1')),
+		String(t('lab_desc_2')),
+		String(t('lab_desc_3')),
+	],
+)
+const resolvedEmails = computed(() => props.emails || ['info@piktube.ru', 'lab@piktube.ru'])
+const resolvedPhones = computed(() => props.phones || ['+7 (800) 25-09-288'])
+const resolvedTopButton = computed<ButtonProps>(() =>
+	props.topButton || {
+		text: String(t('lab_top_button')),
+		size: 'sm',
+		href: '#',
+	},
+)
+const resolvedBottomButton = computed<ButtonProps>(() =>
+	props.bottomButton || {
+		text: String(t('lab_bottom_button')),
+		size: 'lg',
+		href: '/piktube/about',
+	},
+)
+
+const descLines = computed(() => resolvedDescList.value.map(item => splitByBr(item)))
+const emailLinks = computed(() => resolvedEmails.value.filter(Boolean))
+const phoneLinks = computed(() => resolvedPhones.value.filter(Boolean))
 const normalizePhone = (value: string) => value.replace(/[^\d+]/g, '')
 </script>
 
@@ -48,15 +60,15 @@ const normalizePhone = (value: string) => value.replace(/[^\d+]/g, '')
 		<div class="container">
 			<BorderLine class="lab-block__wrap" position="top" design="primary">
 				<div class="lab-block__title-wrap">
-					<CustomTitle class="lab-block__title" :tag="props.titleTag"
-						>{{ props.title }}</CustomTitle
+					<CustomTitle class="lab-block__title" :tag="resolvedTitleTag"
+						>{{ resolvedTitle }}</CustomTitle
 					>
 				</div>
 				<div class="lab-block__card">
 					<LabCard
 						:icon="{ name: 'document', isSprite: false }"
-						:button="props.topButton"
-						:title="props.cardTitle"
+						:button="resolvedTopButton"
+						:title="resolvedCardTitle"
 					/>
 				</div>
 				<div class="lab-block__desc">
@@ -91,7 +103,7 @@ const normalizePhone = (value: string) => value.replace(/[^\d+]/g, '')
 					<Button
 						v-if="props.isBtn"
 						class="lab-block__btn--item"
-						v-bind="props.bottomButton"
+						v-bind="resolvedBottomButton"
 					/>
 				</div>
 			</BorderLine>

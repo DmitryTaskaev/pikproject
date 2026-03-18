@@ -2,14 +2,15 @@
 interface HeroWrapperProps {
 	title: string
 	texts: string[]
+	renderHtml?: boolean
 }
 
-const { title, texts } = defineProps<HeroWrapperProps>()
+const { title, texts, renderHtml } = defineProps<HeroWrapperProps>()
 </script>
 
 <template>
 	<section class="hero-wrapper">
-		<ContentBlock :title="title" :texts="texts">
+		<ContentBlock :title="title" :texts="texts" :render-html="renderHtml">
 			<template #form>
 				<order-form class="hero-wrapper__form" prefix="hero" />
 			</template>

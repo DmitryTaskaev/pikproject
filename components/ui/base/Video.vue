@@ -27,6 +27,7 @@ const containerEl = ref<HTMLElement | null>(null)
 const videoEl = ref<HTMLVideoElement | null>(null)
 const isIntersected = ref(false)
 const isPlaying = ref(false)
+const { t } = useSiteI18n()
 let observer: IntersectionObserver | null = null
 
 const classes = computed(() => {
@@ -47,6 +48,8 @@ const sources = computed<VideoSource[]>(() => {
 const showControls = computed(() => {
 	return props.controls && isPlaying.value
 })
+
+const playButtonLabel = computed(() => String(t('common_watch_video')))
 
 const handlePlay = async () => {
 	if (!videoEl.value) return
@@ -116,7 +119,7 @@ onBeforeUnmount(() => {
 				size="sm"
 				design="secondary"
 				line-height="xl"
-				>Смотреть видео</Text
+				>{{ playButtonLabel }}</Text
 			>
 			<Icon class="base-video__play--icon" name="base-arrow"></Icon>
 		</button>

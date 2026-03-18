@@ -13,6 +13,11 @@ interface ServicesResponse {
 	data: {
 		TREE: ServicesSection[]
 	}
+	meta?: {
+		iblock?: {
+			name?: string
+		}
+	}
 }
 
 const fallbackServicesList = [
@@ -51,6 +56,7 @@ const fallbackServicesList = [
 ]
 
 const config = useRuntimeConfig()
+const { t } = useSiteI18n()
 const { data: servicesData } = await useLocalizedAsyncData(
 	'servicesCatalogHome',
 	lang =>
@@ -76,6 +82,9 @@ const servicesList = computed(() => {
 		})
 		.filter(Boolean)
 })
+
+const title = computed(() => servicesData.value?.meta?.iblock?.name || 'Услуги')
+const sectionTitle = computed(() => String(t('common_service_categories')))
 </script>
 
 <template>
@@ -86,11 +95,11 @@ const servicesList = computed(() => {
 				position="top"
 				design="primary"
 			>
-				<CustomTitle class="service-catalog__title"> Услуги </CustomTitle>
+				<CustomTitle class="service-catalog__title">{{ title }}</CustomTitle>
 				<div class="service-catalog__wrap">
 					<SectionWrapper
 						class="service-catalog__services"
-						title="Категории услуг"
+						:title="sectionTitle"
 						tag="h3"
 					>
 						<div class="service-catalog__services--list">

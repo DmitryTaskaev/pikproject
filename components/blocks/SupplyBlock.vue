@@ -1,9 +1,63 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const title = 'Поставка труб по россии'
-const contentDescription =
-	'Доставляем грузы практически в любой город РФ, все виды труб и практически в любых количествах. Доставляем грузы практически в любой город РФ, все виды труб и практически в\u00A0любых количествах.'
+interface MapMainPoint {
+	ID?: string
+	NAME?: string
+	SORT?: string
+	PROPERTY_CSS_POINT_VALUE?: string
+	PROPERTIES?: {
+		CSS_POINT?: {
+			VALUE?: string
+		}
+	}
+}
+
+interface MapMainResponse {
+	data?: {
+		ROOT_ITEMS?: MapMainPoint[]
+	}
+	meta?: {
+		iblock?: {
+			name?: string
+			description?: string
+		}
+	}
+}
+
+const fallbackTitle = 'Поставка труб по россии'
+const fallbackDescription
+	= 'Доставляем грузы практически в любой город РФ, все виды труб и практически в любых количествах. Доставляем грузы практически в любой город РФ, все виды труб и практически в любых количествах.'
+
+const config = useRuntimeConfig()
+const { t } = useSiteI18n()
+const { data: mapMainData } = await useLocalizedAsyncData('mapMain', lang =>
+	$fetch<MapMainResponse>(`${config.app.baseURL}api/mapMain`, {
+		query: { lang },
+	}),
+)
+
+const title = computed(
+	() => mapMainData.value?.meta?.iblock?.name || fallbackTitle,
+)
+const contentDescription = computed(
+	() => mapMainData.value?.meta?.iblock?.description || fallbackDescription,
+)
+const buttonText = computed(() => String(t('common_contact_us')))
+const points = computed(() => {
+	const items = mapMainData.value?.data?.ROOT_ITEMS || []
+	return [...items]
+		.sort((a, b) => Number(a.SORT || 0) - Number(b.SORT || 0))
+		.map((item, index) => ({
+			id: Number(item.ID || index + 1),
+			title: item.NAME || 'Название города',
+			cssClass:
+				item.PROPERTIES?.CSS_POINT?.VALUE ||
+				item.PROPERTY_CSS_POINT_VALUE ||
+				'',
+		}))
+		.filter(point => point.cssClass)
+})
 
 const openPoints = ref<Set<number>>(new Set())
 
@@ -54,328 +108,47 @@ const isPointOpen = (index: number) => {
 					</div>
 					<div class="supply-block__map">
 						<Image class="supply-block__map--item" src="map/map" alt="Карта" />
-						<div class="supply-block__map--point supply-block__map--point_1">
+						<div
+							v-for="point in points"
+							:key="point.id"
+							class="supply-block__map--point"
+							:class="point.cssClass"
+						>
 							<div
 								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(1)"
-								@mouseleave="closePoint(1)"
-								@click="togglePoint(1)"
+								@mouseenter="openPoint(point.id)"
+								@mouseleave="closePoint(point.id)"
+								@click="togglePoint(point.id)"
 							>
 								<div
 									class="supply-block__map--point_item"
 									:class="{
-										'supply-block__map--point_item_active': isPointOpen(1),
+										'supply-block__map--point_item_active': isPointOpen(point.id),
 									}"
-									v-click-away="() => handleClickAway(1)"
-									@mouseenter="openPoint(1)"
-									@mouseleave="closePoint(1)"
+									v-click-away="() => handleClickAway(point.id)"
+									@mouseenter="openPoint(point.id)"
+									@mouseleave="closePoint(point.id)"
 								>
 									<Text
 										class="supply-block__map--point_item-title"
 										size="xs"
 										letter-spacing="sm"
 										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_2">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(2)"
-								@mouseleave="closePoint(2)"
-								@click="togglePoint(2)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(2),
-									}"
-									v-click-away="() => handleClickAway(2)"
-									@mouseenter="openPoint(2)"
-									@mouseleave="closePoint(2)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_3">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(3)"
-								@mouseleave="closePoint(3)"
-								@click="togglePoint(3)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(3),
-									}"
-									v-click-away="() => handleClickAway(3)"
-									@mouseenter="openPoint(3)"
-									@mouseleave="closePoint(3)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_4">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(4)"
-								@mouseleave="closePoint(4)"
-								@click="togglePoint(4)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(4),
-									}"
-									v-click-away="() => handleClickAway(4)"
-									@mouseenter="openPoint(4)"
-									@mouseleave="closePoint(4)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_5">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(5)"
-								@mouseleave="closePoint(5)"
-								@click="togglePoint(5)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(5),
-									}"
-									v-click-away="() => handleClickAway(5)"
-									@mouseenter="openPoint(5)"
-									@mouseleave="closePoint(5)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_6">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(6)"
-								@mouseleave="closePoint(6)"
-								@click="togglePoint(6)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(6),
-									}"
-									v-click-away="() => handleClickAway(6)"
-									@mouseenter="openPoint(6)"
-									@mouseleave="closePoint(6)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_7">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(7)"
-								@mouseleave="closePoint(7)"
-								@click="togglePoint(7)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(7),
-									}"
-									v-click-away="() => handleClickAway(7)"
-									@mouseenter="openPoint(7)"
-									@mouseleave="closePoint(7)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_8">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(8)"
-								@mouseleave="closePoint(8)"
-								@click="togglePoint(8)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(8),
-									}"
-									v-click-away="() => handleClickAway(8)"
-									@mouseenter="openPoint(8)"
-									@mouseleave="closePoint(8)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_9">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(9)"
-								@mouseleave="closePoint(9)"
-								@click="togglePoint(9)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(9),
-									}"
-									v-click-away="() => handleClickAway(9)"
-									@mouseenter="openPoint(9)"
-									@mouseleave="closePoint(9)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_10">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(10)"
-								@mouseleave="closePoint(10)"
-								@click="togglePoint(10)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(10),
-									}"
-									v-click-away="() => handleClickAway(10)"
-									@mouseenter="openPoint(10)"
-									@mouseleave="closePoint(10)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_11">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(11)"
-								@mouseleave="closePoint(11)"
-								@click="togglePoint(11)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(11),
-									}"
-									v-click-away="() => handleClickAway(11)"
-									@mouseenter="openPoint(11)"
-									@mouseleave="closePoint(11)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
-									>
-								</div>
-							</div>
-						</div>
-						<div class="supply-block__map--point supply-block__map--point_12">
-							<div
-								class="supply-block__map--point_circle"
-								@mouseenter="openPoint(12)"
-								@mouseleave="closePoint(12)"
-								@click="togglePoint(12)"
-							>
-								<div
-									class="supply-block__map--point_item"
-									:class="{
-										'supply-block__map--point_item_active': isPointOpen(12),
-									}"
-									v-click-away="() => handleClickAway(12)"
-									@mouseenter="openPoint(12)"
-									@mouseleave="closePoint(12)"
-								>
-									<Text
-										class="supply-block__map--point_item-title"
-										size="xs"
-										letter-spacing="sm"
-										design="main-bg"
-										>Название города</Text
+										>{{ point.title }}</Text
 									>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="supply-block__content">
-						<Text class="supply-block__content--desc" size="sm">{{
-							contentDescription
-						}}</Text>
+						<Text class="supply-block__content--desc" size="sm" tag="div">
+							<span v-html="contentDescription" />
+						</Text>
 						<Button
 							class="supply-block__content--btn"
 							size="lg"
 							href="/piktube/contacts"
-							text="Свяжитесь с нами"
+							:text="buttonText"
 						/>
 					</div>
 				</div>
@@ -561,6 +334,11 @@ const isPointOpen = (index: number) => {
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-lg);
+		&--desc {
+			:deep(p) {
+				margin: 0;
+			}
+		}
 		@include tablet {
 			width: 355px;
 			max-width: 355px;

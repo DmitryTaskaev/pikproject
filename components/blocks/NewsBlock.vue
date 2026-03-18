@@ -13,9 +13,13 @@ interface NewsListResponse {
 	data: {
 		items: NewsItem[]
 	}
+	meta?: {
+		iblock?: {
+			name?: string
+		}
+	}
 }
 
-const title = 'Новости'
 const fallbackSlides = [
 	{
 		image: {
@@ -60,11 +64,15 @@ const fallbackSlides = [
 ]
 
 const config = useRuntimeConfig()
+const { t } = useSiteI18n()
 const { data: newsData } = await useLocalizedAsyncData('newsList', lang =>
 	$fetch<NewsListResponse>(`${config.app.baseURL}api/news`, {
 		query: { lang },
 	}),
 )
+const title = computed(() => newsData.value?.meta?.iblock?.name || 'Новости')
+const latestTitle = computed(() => String(t('common_latest')))
+const allNewsTitle = computed(() => String(t('common_read_all_news')))
 
 const decodeHtml = (value: string) => {
 	return value
@@ -109,7 +117,11 @@ const slides = computed(() => {
 			</BorderLine>
 		</div>
 		<div class="news-block__wrapper">
-			<SectionWrapper class="news-block__content" title="Последнее" tag="h3">
+			<SectionWrapper
+				class="news-block__content"
+				:title="latestTitle"
+				tag="h3"
+			>
 				<NewsSlider :slides="slides" />
 			</SectionWrapper>
 			<NuxtLink class="news-block__action" to="/news">
@@ -120,7 +132,7 @@ const slides = computed(() => {
 					line-height="sm"
 					design="secondary"
 				>
-					Читать все новости
+					{{ allNewsTitle }}
 				</Text>
 				<Icon class="news-block__action--icon" name="base-arrow" />
 			</NuxtLink>

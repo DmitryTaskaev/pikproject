@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Каталог', href: '/catalog' },
 	{ title: 'Холодное водоснабжение', href: '/solution' },
-]
+])
 const servicesList = [
 	{
 		title: ['Нанесение ППМ изоляции на стальную трубу'],

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Публичная оферта', href: '/public-offer' },
-]
+])
 const list = [
 	{
 		title: '1. Общие положения',

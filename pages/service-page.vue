@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ListItem } from '~/components/ServiceItem.vue'
 
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Каталог Услуг', href: '/services' },
 	{ title: 'Нанесение ППУ изоляции', href: '/service-page' },
-]
+])
 const heroTexts = [
 	'«Производственная Изоляционная Компания» (ООО «ПИК») - предоставляет услуги по нанесению ППУ изоляции, вы можете самостоятельно ознакомиться со всеми услугами, и заказать нужные вам через форму ниже, не стесняйтесь обратиться к нам через форму обратной связи.',
 ]

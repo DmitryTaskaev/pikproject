@@ -9,6 +9,7 @@ interface Measure {
 interface Content {
 	desc: string
 	measures: Measure[]
+	descHtml?: boolean
 }
 
 export interface ListItem {
@@ -50,9 +51,16 @@ const { listItem, isBigBtn } = defineProps<ServiceItemProps>()
 			</template>
 			<div class="service-item__content">
 				<div class="service-item__content--top">
-					<Text class="service-item__content--top_desc">{{
-						listItem.content.desc
-					}}</Text>
+					<Text
+						class="service-item__content--top_desc"
+						:tag="listItem.content.descHtml ? 'div' : 'p'"
+					>
+						<span
+							v-if="listItem.content.descHtml"
+							v-html="listItem.content.desc"
+						/>
+						<template v-else>{{ listItem.content.desc }}</template>
+					</Text>
 				</div>
 				<div class="service-item__content--measures">
 					<div
@@ -132,6 +140,9 @@ const { listItem, isBigBtn } = defineProps<ServiceItemProps>()
 				}
 				@include desktop {
 					max-width: 618px;
+				}
+				:deep(p) {
+					margin: 0;
 				}
 			}
 		}

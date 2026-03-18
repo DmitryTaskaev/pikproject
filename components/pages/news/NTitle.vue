@@ -1,11 +1,19 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+interface NewsTitleProps {
+	title?: string
+}
+
+const props = withDefaults(defineProps<NewsTitleProps>(), {
+	title: 'Новости',
+})
+</script>
 
 <template>
 	<div class="n-title">
 		<div class="container">
-			<CustomTitle class="n-title__item" tag="h1" mode="xxl"
-				>Новости</CustomTitle
-			>
+			<CustomTitle class="n-title__item" tag="h1" mode="xxl">
+				{{ props.title }}
+			</CustomTitle>
 		</div>
 	</div>
 </template>

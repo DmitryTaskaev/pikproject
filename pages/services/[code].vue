@@ -11,6 +11,7 @@ interface ServicesItem {
 	ID: string
 	NAME: string
 	PREVIEW_TEXT: string
+	['~PREVIEW_TEXT']?: string
 	PREVIEW_PICTURE_SRC?: string
 	PROPERTIES?: Record<string, ServicesProperty>
 }
@@ -21,8 +22,10 @@ interface ServicesSectionDetail {
 		NAME: string
 		CODE: string
 		DESCRIPTION?: string
+		['~DESCRIPTION']?: string
 		UF_SEO_TITLE?: string
 		UF_SEO_DESCRIPTION?: string
+		['~UF_SEO_DESCRIPTION']?: string
 	}
 	ITEMS: ServicesItem[]
 }
@@ -30,6 +33,11 @@ interface ServicesSectionDetail {
 interface ServicesDetailResponse {
 	status: string
 	data: ServicesSectionDetail
+	meta?: {
+		iblock?: {
+			name?: string
+		}
+	}
 }
 
 const route = useRoute()
@@ -46,6 +54,10 @@ const { data: servicesData } = await useLocalizedAsyncData(
 )
 
 const section = computed(() => servicesData.value?.data?.SECTION)
+const servicesCatalogTitle = computed(
+	() => servicesData.value?.meta?.iblock?.name || 'Каталог Услуг',
+)
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 
 const decodeHtml = (value: string) => {
 	return value
@@ -80,12 +92,19 @@ const mapImage = (src?: string): ImageProps | undefined => {
 	return { src: resolveImageSrc(src), alt: '' }
 }
 
+const resolveRichText = (encoded?: string, raw?: string) => {
+	if (raw && raw.trim()) return raw
+	if (!encoded) return ''
+	return decodeHtml(encoded)
+}
+
 const listItems = computed<ListItem[]>(() => {
 	const items = servicesData.value?.data?.ITEMS || []
 	return items.map(item => ({
 		title: [item.NAME],
 		content: {
-			desc: decodeHtml(item.PREVIEW_TEXT || ''),
+			desc: resolveRichText(item.PREVIEW_TEXT, item['~PREVIEW_TEXT']),
+			descHtml: true,
 			measures: mapProperties(item.PROPERTIES),
 		},
 		image: mapImage(item.PREVIEW_PICTURE_SRC),
@@ -93,22 +112,25 @@ const listItems = computed<ListItem[]>(() => {
 })
 
 const heroTitle = computed(() => section.value?.NAME || '')
-const heroTexts = computed(() =>
-	section.value?.DESCRIPTION
-		? decodeHtml(section.value.DESCRIPTION).split('\n').filter(Boolean)
-		: [],
-)
+const heroTexts = computed(() => {
+	const html = resolveRichText(
+		section.value?.DESCRIPTION,
+		section.value?.['~DESCRIPTION'],
+	).trim()
+	return html ? [html] : []
+})
 
 const seoTitle = computed(() => section.value?.UF_SEO_TITLE || '')
 const seoDescription = computed(() =>
-	section.value?.UF_SEO_DESCRIPTION
-		? decodeHtml(section.value.UF_SEO_DESCRIPTION)
-		: '',
+	resolveRichText(
+		section.value?.UF_SEO_DESCRIPTION,
+		section.value?.['~UF_SEO_DESCRIPTION'],
+	),
 )
 
 const breadcrumbsList = computed(() => [
-	{ title: 'Главная', href: '/' },
-	{ title: 'Каталог Услуг', href: '/services' },
+	{ title: homeBreadcrumbTitle.value, href: '/' },
+	{ title: servicesCatalogTitle.value, href: '/services' },
 	{ title: heroTitle.value || 'Услуга', href: `/services/${code.value}` },
 ])
 
@@ -126,9 +148,14 @@ useHead(() => ({
 <template>
 	<main class="main">
 		<Breadcrumbs :list="breadcrumbsList" />
-		<HeroWrapper class="s-p-hero" :title="heroTitle" :texts="heroTexts" />
+		<HeroWrapper
+			class="s-p-hero"
+			:title="heroTitle"
+			:texts="heroTexts"
+			:render-html="true"
+		/>
 		<SPList :list="listItems" />
-		<SeoBlock :title="seoTitle" :description="seoDescription" />
+		<SeoBlock :title="seoTitle" :description="seoDescription" :render-html="true" />
 		<ConsultationBlock />
 	</main>
 </template>

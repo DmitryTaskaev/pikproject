@@ -35,6 +35,7 @@ interface FooterEntry {
 }
 
 const config = useRuntimeConfig()
+const { t } = useSiteI18n()
 const { data: menuData } = await useLocalizedAsyncData('menu', lang =>
 	$fetch<MenuResponse>(`${config.app.baseURL}api/menu`, {
 		query: { lang },
@@ -47,7 +48,15 @@ const resolveHref = (url?: string | null) => {
 	const raw = url || '#'
 
 	if (/^https?:\/\//.test(raw)) return raw
-	if (raw.startsWith('/')) return `${basePrefix}${raw}`
+
+	if (raw.startsWith('/')) {
+		// API may return language-prefixed paths like `/ru/...` or `/en/...`.
+		// Strip the leading language segment to avoid producing paths like
+		// `/piktube/ru/...` when `app.baseURL` already provides the site base.
+		const withoutLang = raw.replace(/^\/(ru|en)(\/|$)/, '/')
+		return `${basePrefix}${withoutLang}`
+	}
+
 	return raw
 }
 
@@ -69,20 +78,25 @@ const buildFooterEntries = () => {
 			)
 			.map(child => ({
 				title: child.SECTION?.NAME || '',
-				href: resolveHref(child.SECTION?.UF_URL_TO || section.SECTION?.UF_URL_TO),
+				href: resolveHref(child.SECTION?.UF_URL_TO),
 			}))
-			.filter(item => item.title)
+			.filter(item => item.title && item.href !== '#')
 
 		const items = (section.ITEMS || [])
 			.slice()
 			.sort((a, b) => Number(a.SORT || 0) - Number(b.SORT || 0))
 			.map(item => ({
 				title: item.NAME || '',
-				href: resolveHref(resolveItemUrl(item) || section.SECTION?.UF_URL_TO),
+				href: resolveHref(resolveItemUrl(item)),
 			}))
-			.filter(item => item.title)
+			.filter(item => item.title && item.href !== '#')
 
-		const list = childSections.length ? childSections : items
+		const list = [...childSections, ...items].filter(
+			(item, index, array) =>
+				array.findIndex(
+					entry => entry.title === item.title && entry.href === item.href,
+				) === index,
+		)
 
 		return {
 			title: sectionTitle,
@@ -112,6 +126,18 @@ const footerTopList = computed(() =>
 const footerBottomList = computed(() =>
 	footerEntries.value.slice(splitIndex.value),
 )
+
+const footerActivityTitle = computed(() => String(t('footer_activity_title')))
+const footerActivityAward = computed(() => String(t('footer_activity_award')))
+const footerActivityApts = computed(() => String(t('footer_activity_apts')))
+const footerActivityRavv = computed(() => String(t('footer_activity_ravv')))
+const footerActivityGisp = computed(() => String(t('footer_activity_gisp')))
+const footerAddressTitle = computed(() => String(t('footer_address_title')))
+const footerAddressText = computed(() => String(t('footer_address_text')))
+const footerContactsTitle = computed(() => String(t('footer_contacts_title')))
+const footerMadeBy = computed(() => String(t('footer_made_by')))
+const footerPrivacyPolicy = computed(() => String(t('footer_privacy_policy')))
+const footerPublicOffer = computed(() => String(t('footer_public_offer')))
 </script>
 
 <template>
@@ -124,7 +150,7 @@ const footerBottomList = computed(() =>
 							<Image
 								class="footer__logo--item"
 								src="footer-logo"
-								alt="Производственная Изоляционная Компания"
+								:alt="String(t('footer_logo_alt'))"
 							/>
 						</a>
 						<div class="footer__list">
@@ -148,32 +174,32 @@ const footerBottomList = computed(() =>
 						<FooterCard
 							class="footer__card footer__activity"
 							icon="activity"
-							title="деятельность"
+							:title="footerActivityTitle"
 						>
 							<div class="footer__activity--content">
 								<p class="footer__card--text">
-									Лауреат награды «100 лучших <br />товаров России»
+									{{ footerActivityAward }}
 								</p>
-								<p class="footer__card--text">Член АПТС</p>
-								<p class="footer__card--text">Член РАВВ</p>
-								<p class="footer__card--text">Участник ГИСП</p>
+								<p class="footer__card--text">{{ footerActivityApts }}</p>
+								<p class="footer__card--text">{{ footerActivityRavv }}</p>
+								<p class="footer__card--text">{{ footerActivityGisp }}</p>
 							</div>
 						</FooterCard>
 						<FooterCard
 							class="footer__card footer__address"
 							icon="address"
-							title="Адрес"
+							:title="footerAddressTitle"
 						>
 							<div class="footer__address--content">
 								<p class="footer__card--text">
-									Россия, Москва, <br />Котельническая набережная <br />д.17
+									{{ footerAddressText }}
 								</p>
 							</div>
 						</FooterCard>
 						<FooterCard
 							class="footer__card footer__contacts"
 							icon="contacts"
-							title="Контакты"
+							:title="footerContactsTitle"
 						>
 							<div class="footer__contacts--content">
 								<div class="footer__contacts--content_top">
@@ -215,7 +241,7 @@ const footerBottomList = computed(() =>
 							size="sm"
 							line-height="xl"
 							design="accent"
-							>Сделано в Дзен.Дизайн</Text
+							>{{ footerMadeBy }}</Text
 						>
 						<div class="footer__bottom--content_wrap">
 							<div class="footer__bottom--content_inner">
@@ -226,7 +252,7 @@ const footerBottomList = computed(() =>
 									size="sm"
 									line-height="xl"
 									design="accent"
-									>Политика конфиденциальности</Text
+									>{{ footerPrivacyPolicy }}</Text
 								>
 								<Text
 									class="footer__bottom--content_link"
@@ -235,7 +261,7 @@ const footerBottomList = computed(() =>
 									size="sm"
 									line-height="xl"
 									design="accent"
-									>Публичная оферта</Text
+									>{{ footerPublicOffer }}</Text
 								>
 							</div>
 							<Text

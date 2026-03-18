@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Каталог', href: '/catalog' },
 	{ title: 'Холодное водоснабжение', href: '/solution' },
-]
+])
 const fitting = {
 	content: {
 		desc: 'Для надземной прокладки теплотрасс и промышленных сетей. Обеспечивает высокую механическую прочность и стойкость к внешним воздействиям.',

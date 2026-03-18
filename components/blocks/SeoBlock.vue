@@ -2,12 +2,14 @@
 interface SeoBlockProps {
 	title?: string
 	description?: string
+	renderHtml?: boolean
 }
 
 const props = withDefaults(defineProps<SeoBlockProps>(), {
 	title: 'СЕО',
 	description:
 		'CEO Блок. Трубный завод ПИК — один из ведущих российских производителей трубопроводных',
+	renderHtml: false,
 })
 </script>
 
@@ -17,7 +19,10 @@ const props = withDefaults(defineProps<SeoBlockProps>(), {
 			<BorderLine position="top" design="primary">
 				<div class="seo-block__container">
 					<CustomTitle class="seo-block__title">{{ props.title }}</CustomTitle>
-					<Text class="seo-block__desc">{{ props.description }}</Text>
+					<Text class="seo-block__desc" :tag="props.renderHtml ? 'div' : 'p'">
+						<span v-if="props.renderHtml" v-html="props.description" />
+						<template v-else>{{ props.description }}</template>
+					</Text>
 				</div>
 			</BorderLine>
 		</div>
@@ -46,6 +51,9 @@ const props = withDefaults(defineProps<SeoBlockProps>(), {
 	&__desc {
 		@include ultrahd {
 			padding-top: var(--space-md);
+		}
+		:deep(p) {
+			margin: 0;
 		}
 	}
 }

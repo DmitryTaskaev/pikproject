@@ -1,7 +1,10 @@
 <script setup lang="ts">
-const titleList = ['Если вам нужна', 'консультация']
-const description =
-	'У вас возникли вопросы? Мы с удовольствием ответим! Просто закажите обратный звонок. И мы свяжемся с вами как можно скорее.'
+const { t } = useSiteI18n()
+const titleList = computed(() => {
+	const value = t('consultation_title')
+	return Array.isArray(value) ? value : [value]
+})
+const description = computed(() => String(t('consultation_description')))
 </script>
 
 <template>
@@ -27,7 +30,7 @@ const description =
 					<div class="consultation-block__actions">
 						<CopyLinkComplex
 							class="consultation-block__action"
-							label="Телефон:"
+							:label="String(t('consultation_phone_label'))"
 							:copy-link="{
 								text: '8 (800) 250-9288',
 								href: 'tel:+78002509288',
@@ -35,7 +38,7 @@ const description =
 						/>
 						<CopyLinkComplex
 							class="consultation-block__action"
-							label="E-mail:"
+							:label="String(t('consultation_email_label'))"
 							:copy-link="{
 								text: 'zakaz@piktube.ru',
 								href: 'mailto:zakaz@piktube.ru',

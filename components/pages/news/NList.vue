@@ -19,6 +19,11 @@ interface NewsListResponse {
 			pages: number
 		}
 	}
+	meta?: {
+		iblock?: {
+			name?: string
+		}
+	}
 }
 
 const fallbackCards = [
@@ -192,6 +197,8 @@ const cards = computed(() => {
 })
 
 const totalPages = computed(() => newsData.value?.data?.pagination?.pages || 1)
+const totalItems = computed(() => newsData.value?.data?.pagination?.total || 0)
+const shouldShowPagination = computed(() => totalItems.value > 12)
 </script>
 
 <template>
@@ -201,7 +208,11 @@ const totalPages = computed(() => newsData.value?.data?.pagination?.pages || 1)
 				<div class="n-list__grid">
 					<NewsCard v-for="(card, index) in cards" :key="index" v-bind="card" />
 				</div>
-				<CustomControls :page="page" :pages="totalPages" />
+				<CustomControls
+					v-if="shouldShowPagination"
+					:page="page"
+					:pages="totalPages"
+				/>
 			</div>
 		</div>
 	</div>

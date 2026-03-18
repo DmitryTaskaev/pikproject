@@ -10,6 +10,7 @@ interface ServicesBlockProps {
 }
 
 const { service, listItems } = defineProps<ServicesBlockProps>()
+const { t } = useSiteI18n()
 </script>
 
 <template>
@@ -18,7 +19,7 @@ const { service, listItems } = defineProps<ServicesBlockProps>()
 			<BorderLine class="services-block" position="top" design="primary">
 				<div class="services-block__top">
 					<custom-title class="services-block__title" mode="xl">
-						Услуги
+						{{ String(t('services_block_title')) }}
 					</custom-title>
 					<Text
 						class="services-block__desc"

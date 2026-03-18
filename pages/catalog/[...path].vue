@@ -121,6 +121,7 @@ const config = useRuntimeConfig()
 const pathSegments = computed(() => normalizePathSegments(route.params.path))
 const pathString = computed(() => pathSegments.value.join('/'))
 const itemCode = computed(() => pathSegments.value[pathSegments.value.length - 1] || '')
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 const sectionSegmentsForItem = computed(() => pathSegments.value.slice(0, -1))
 const sectionPathForItem = computed(() => sectionSegmentsForItem.value.join('/'))
 
@@ -1044,7 +1045,7 @@ const breadcrumbsList = computed(() => {
 		return { title: node.SECTION.NAME, href }
 	})
 	return [
-		{ title: 'Главная', href: '/' },
+		{ title: homeBreadcrumbTitle.value, href: '/' },
 		{ title: 'Каталог', href: '/catalog' },
 		...trail,
 		...(isItemPage.value && currentItem.value

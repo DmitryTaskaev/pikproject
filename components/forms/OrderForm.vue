@@ -6,6 +6,7 @@ interface OrderFormProps {
 const props = withDefaults(defineProps<OrderFormProps>(), {
 	prefix: 'consultation',
 })
+const { t } = useSiteI18n()
 
 const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 </script>
@@ -24,7 +25,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 				:for="getFieldId('organization-name')"
 			>
 				<Text class="order-form__label" size="sm" design="secondary"
-					>Название организации:</Text
+					>{{ String(t('form_organization_name')) }}</Text
 				>
 				<Input
 					:id="getFieldId('organization-name')"
@@ -36,7 +37,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 			</label>
 			<label class="order-form__name" :for="getFieldId('name')">
 				<Text class="order-form__label" size="sm" design="secondary"
-					>Ваше имя:</Text
+					>{{ String(t('form_name')) }}</Text
 				>
 				<Input
 					:id="getFieldId('name')"
@@ -49,7 +50,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 			<div class="order-form__top--wrap">
 				<label class="order-form__phone" :for="getFieldId('phone')">
 					<Text class="order-form__label" size="sm" design="secondary"
-						>Телефон:</Text
+						>{{ String(t('form_phone')) }}</Text
 					>
 					<Input
 						:id="getFieldId('phone')"
@@ -58,13 +59,13 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						type="tel"
 						required
 						inputmode="tel"
-						placeholder="+7 (___) ___-__-__"
-						title="Формат: +7 (XXX) XXX-XX-XX"
+						:placeholder="String(t('form_phone_placeholder'))"
+						:title="String(t('form_phone_title'))"
 					/>
 				</label>
 				<label class="order-form__email" :for="getFieldId('email')">
 					<Text class="order-form__label" size="sm" design="secondary"
-						>E-mail:</Text
+						>{{ String(t('form_email')) }}</Text
 					>
 					<Input
 						:id="getFieldId('email')"
@@ -90,14 +91,15 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						<Icon class="checkbox-custom__icon" name="check-arrow" />
 					</div>
 					<Text class="order-form__checkbox--text" size="xs" line-height="xs">
-						Я согласен на обработку
+						{{ String(t('form_agreement_before_link')) }}
+						{{ ' ' }}
 						<Text
 							class="order-form__checkbox--link"
 							size="xs"
 							tag="a"
 							href="#"
 							line-height="xs"
-							>персональных данных</Text
+							>{{ String(t('form_agreement_link')) }}</Text
 						>.
 					</Text>
 				</label>
@@ -113,14 +115,15 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						<Icon class="checkbox-custom__icon" name="check-arrow" />
 					</div>
 					<Text class="order-form__checkbox--text" size="xs" line-height="xs">
-						Я согласен на получение
+						{{ String(t('form_newsletter_before_link')) }}
+						{{ ' ' }}
 						<Text
 							class="order-form__checkbox--link"
 							size="xs"
 							tag="a"
 							href="#"
 							line-height="xs"
-							>информации об акциях и мероприятиях</Text
+							>{{ String(t('form_newsletter_link')) }}</Text
 						>.
 					</Text>
 				</label>
@@ -129,7 +132,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 				<Button
 					class="order-form__submit"
 					type="submit"
-					text="Отправить заявку"
+					:text="String(t('form_submit'))"
 					size="xl"
 				></Button>
 
@@ -139,7 +142,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						tag="span"
 						size="xs"
 						line-height="xs"
-						>Нажимая кнопку «Отправить», вы принимаете условия
+						>{{ String(t('form_public_offer_prefix')) }}
 					</Text>
 					<Text
 						class="order-form__public-offer--link"
@@ -147,7 +150,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						href="/piktube/public-offer"
 						size="xs"
 						line-height="xs"
-						>публичной&nbsp;оферты.</Text
+						>{{ String(t('form_public_offer_link')) }}</Text
 					>
 				</span>
 			</div>

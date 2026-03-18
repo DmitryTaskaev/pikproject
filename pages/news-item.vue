@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { SwiperSlide } from 'swiper/vue'
 
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Новости', href: '/news' },
 	{ title: 'Новость', href: '/news-item' },
-]
+])
 
 const descriptionsList = [
 	`Настоящая публичная оферта (далее - Оферта) является официальным предложением укажите название юр.лица или ИП в адрес любого физического лица заключить с укажите название юр.лица или ИП договор розничной купли-продажи товара на Сайте дистанционным образом на условиях, определенных в настоящем Договоре и содержит все существенные условия Оферты.`,

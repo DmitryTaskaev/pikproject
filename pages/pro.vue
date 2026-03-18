@@ -13,6 +13,9 @@ interface DesignersFileProperty {
 interface DesignersItem {
 	NAME?: string
 	SORT?: string
+	PROPERTY_FILE_VALUE?: string | null
+	PROPERTY_FILE_DESCRIPTION?: string | null
+	PROPERTY_FILE_FILE_SIZE?: string | null
 	PROPERTIES?: {
 		FILE?: DesignersFileProperty
 	}
@@ -29,9 +32,7 @@ interface DesignersSection {
 }
 
 interface DesignersResponse {
-	data?: {
-		TREE?: DesignersSection[]
-	}
+	data?: Record<string, unknown>
 	meta?: {
 		iblock?: {
 			name?: string
@@ -110,11 +111,56 @@ const pageTitle = computed(
 const pageTexts = computed(() =>
 	splitParagraphs(designersData.value?.meta?.iblock?.description),
 )
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 
 const breadcrumbsList = computed(() => [
-	{ title: 'Главная', href: '/' },
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: pageTitle.value, href: '/pro' },
 ])
+
+const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value : [])
+
+const getSectionItems = (section?: DesignersSection) =>
+	asArray<DesignersItem>(section?.ITEMS)
+
+const getChildSections = (section?: DesignersSection) =>
+	asArray<DesignersSection>(section?.CHILDREN)
+
+const getTreeSections = () => {
+	const data = designersData.value?.data
+
+	if (Array.isArray(data)) return data as DesignersSection[]
+	if (!data || typeof data !== 'object') return []
+
+	const tree = asArray<DesignersSection>(
+		(data as Record<string, unknown>).TREE ||
+			(data as Record<string, unknown>).tree ||
+			(data as Record<string, unknown>).SECTIONS ||
+			(data as Record<string, unknown>).sections,
+	)
+
+	if (tree.length) return tree
+
+	const directItems = asArray<DesignersItem>(
+		(data as Record<string, unknown>).ITEMS ||
+			(data as Record<string, unknown>).items,
+	)
+
+	if (directItems.length) {
+		return [
+			{
+				SECTION: {
+					NAME: pageTitle.value,
+					SORT: '0',
+				},
+				ITEMS: directItems,
+				CHILDREN: [],
+			},
+		]
+	}
+
+	return []
+}
 
 const mapSlides = (items: DesignersItem[] = []) => {
 	return [...items]
@@ -127,14 +173,17 @@ const mapSlides = (items: DesignersItem[] = []) => {
 				(Array.isArray(fileProperty?.SRC)
 					? fileProperty?.SRC[0]
 					: fileProperty?.SRC) ||
+				item.PROPERTY_FILE_VALUE ||
 				fileProperty?.FILE?.SRC ||
 				item.PROPERTY_FILE_SRC
 			const href = resolveMediaSrc(fileSrc)
 			const size =
 				formatSizeMb(fileProperty?.FILE?.FILE_SIZE) ||
+				formatSizeMb(item.PROPERTY_FILE_FILE_SIZE || undefined) ||
 				(Array.isArray(fileProperty?.DESCRIPTION)
 					? fileProperty?.DESCRIPTION[0]
 					: fileProperty?.DESCRIPTION) ||
+				item.PROPERTY_FILE_DESCRIPTION ||
 				undefined
 
 			return {
@@ -146,20 +195,20 @@ const mapSlides = (items: DesignersItem[] = []) => {
 }
 
 const proListItems = computed<ProListItem[]>(() => {
-	const tree = designersData.value?.data?.TREE || []
+	const tree = getTreeSections()
 	return [...tree]
 		.sort((a, b) => Number(a.SECTION?.SORT || 0) - Number(b.SECTION?.SORT || 0))
 		.map(section => {
 			const sectionTitle = section.SECTION?.NAME || ''
-			const baseSectionItems = mapSlides(section.ITEMS || [])
-			const childSections = (section.CHILDREN || [])
+			const baseSectionItems = mapSlides(getSectionItems(section))
+			const childSections = getChildSections(section)
 				.slice()
 				.sort(
 					(a, b) => Number(a.SECTION?.SORT || 0) - Number(b.SECTION?.SORT || 0),
 				)
 				.map(child => ({
 					title: child.SECTION?.NAME || '',
-					slides: mapSlides(child.ITEMS || []),
+					slides: mapSlides(getSectionItems(child)),
 				}))
 				.filter(child => child.slides.length)
 

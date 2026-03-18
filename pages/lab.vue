@@ -126,10 +126,11 @@ interface LabBottomResponse {
 	}
 }
 
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Лаборатория', href: '/lab' },
-]
+])
 
 const config = useRuntimeConfig()
 const { data: labBannerData } = await useLocalizedAsyncData('labBanner', lang =>

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 
 const isVisible = ref(false)
+const { t } = useSiteI18n()
 
 const closePopup = () => {
 	isVisible.value = false
@@ -18,26 +19,29 @@ onMounted(() => {
 			<div class="cookies-popup__wrap">
 				<CloseButton class="cookies-popup__close" @click="closePopup" />
 				<CustomTitle class="cookies-popup__title animated" tag="h3"
-					>Мы используем cookies</CustomTitle
+					>{{ String(t('cookies_title')) }}</CustomTitle
 				>
 				<Text class="cookies-popup__content" tag="span">
-					Продолжая работу с сайтом, Вы выражаете своё согласие на
+					{{ String(t('cookies_description_before_link')) }}
+					{{ ' ' }}
 					<Text class="cookies-popup__link" tag="a" href="#" target="_blank"
-						>обработку Ваших персональных данных</Text
-					>. Отключить cookies Вы можете в настройках своего браузера.
+						>{{ String(t('cookies_description_data_link')) }}</Text
+					>
+					{{ String(t('cookies_description_middle')) }}
+					{{ ' ' }}
 					<Text class="cookies-popup__link" tag="a" href="#" target="_blank"
-						>Подробнее о Cookies</Text
+						>{{ String(t('cookies_description_more_link')) }}</Text
 					>.
 				</Text>
 				<div class="cookies-popup__actions">
 					<Button
 						class="cookies-popup__btn"
 						size="xl"
-						text="Даю согласие"
+						:text="String(t('cookies_consent_button'))"
 						@click="closePopup"
 					></Button>
 					<Text class="cookies-popup__link" tag="a" href="#" target="_blank"
-						>Согласие об использовании.</Text
+						>{{ String(t('cookies_consent_link')) }}</Text
 					>
 				</div>
 			</div>

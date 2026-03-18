@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const { t } = useSiteI18n()
+</script>
 
 <template>
 	<div class="a-experience">
@@ -8,12 +10,12 @@
 					<experience-slider />
 				</div>
 				<experience-card
-					title="Инновации"
-					text="Ежегодно выпускаем на рынок не менее одной производственной новинки: в 2023 году было освоено производство уникального продукта: ПИКПАЙП G-ППУ."
+					:title="String(t('about_experience_innovations_title'))"
+					:text="String(t('about_experience_innovations_text'))"
 				/>
 				<experience-card
-					title="Ваше время"
-					text="Производственные процессы отлажены до мелочей – на предприятии внедрены самые современные инструменты бережливого производства и реализован национальный проект по повышению производительности труда и поддержки занятости."
+					:title="String(t('about_experience_time_title'))"
+					:text="String(t('about_experience_time_text'))"
 				/>
 			</div>
 		</div>

@@ -25,6 +25,7 @@ interface NewsDetailResponse {
 const route = useRoute()
 const config = useRuntimeConfig()
 const code = computed(() => String(route.params.code || ''))
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 
 const { data: newsData } = await useLocalizedAsyncData(
 	() => `news-${code.value}`,
@@ -56,7 +57,7 @@ const resolveImageSrc = (src: string) => {
 }
 
 const breadcrumbsList = computed(() => [
-	{ title: 'Главная', href: '/' },
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Новости', href: '/news' },
 	{
 		title: item.value?.NAME || 'Новость',

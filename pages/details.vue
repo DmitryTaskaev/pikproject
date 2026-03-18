@@ -56,9 +56,10 @@ const normalizeValue = (value?: string | string[]) => {
 const detailItem = computed(
 	() => detailPageInfoData.value?.data?.items?.[0],
 )
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 
 const breadcrumbsList = computed(() => [
-	{ title: 'Главная', href: '/' },
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: detailItem.value?.NAME || 'Реквизиты', href: '/details' },
 ])
 

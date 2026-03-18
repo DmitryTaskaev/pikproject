@@ -4,9 +4,10 @@ interface ContentBlockProps {
 	title: string
 	texts?: string[]
 	button?: ButtonProps
+	renderHtml?: boolean
 }
 
-const { button, title, texts } = defineProps<ContentBlockProps>()
+const { button, title, texts, renderHtml } = defineProps<ContentBlockProps>()
 </script>
 
 <template>
@@ -15,7 +16,15 @@ const { button, title, texts } = defineProps<ContentBlockProps>()
 			<CustomTitle tag="h1">{{ title }}</CustomTitle>
 			<div class="content-block__body">
 				<slot>
-					<Text v-for="(item, index) in texts" :key="index">{{ item }}</Text>
+					<Text
+						v-for="(item, index) in texts"
+						:key="index"
+						class="content-block__text"
+						:tag="renderHtml ? 'div' : 'p'"
+					>
+						<span v-if="renderHtml" v-html="item" />
+						<template v-else>{{ item }}</template>
+					</Text>
 				</slot>
 				<slot name="form" />
 			</div>
@@ -58,6 +67,14 @@ const { button, title, texts } = defineProps<ContentBlockProps>()
 		flex-direction: column;
 		row-gap: var(--space-sm);
 		align-items: flex-start;
+	}
+	&__text {
+		:deep(p) {
+			margin: 0;
+		}
+		:deep(br) {
+			content: '';
+		}
 	}
 }
 </style>

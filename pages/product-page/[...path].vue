@@ -45,6 +45,7 @@ const { data: sectionData } = await useLocalizedAsyncData(
 
 const section = computed(() => sectionData.value?.data?.SECTION)
 const items = computed(() => sectionData.value?.data?.ITEMS || [])
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
 
 const currentItem = computed<ProductItem | undefined>(() => {
 	const code = itemCode.value
@@ -188,7 +189,7 @@ const breadcrumbsList = computed(() => {
 	})
 	const currentTitle = currentItem.value?.NAME || 'Товар'
 	return [
-		{ title: 'Главная', href: '/' },
+		{ title: homeBreadcrumbTitle.value, href: '/' },
 		{ title: 'Каталог', href: '/catalog' },
 		...trail,
 		{ title: currentTitle, href: `/catalog/${pathSegments.value.join('/')}` },

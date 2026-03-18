@@ -23,12 +23,12 @@ interface InfoContactsResponse {
 	data: {
 		TREE: InfoContactsSection[]
 	}
+	meta?: {
+		iblock?: {
+			name?: string
+		}
+	}
 }
-
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
-	{ title: 'Контакты', href: '/contacts' },
-]
 
 const fallbackSections = [
 	{
@@ -104,6 +104,16 @@ const { data: infoContactsData } = await useLocalizedAsyncData(
 		}),
 )
 
+const pageTitle = computed(
+	() => infoContactsData.value?.meta?.iblock?.name || 'Контакты',
+)
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
+	{ title: pageTitle.value, href: '/contacts' },
+])
+
 const splitAddress = (value?: string) => {
 	if (!value) return []
 	const parts = value
@@ -157,7 +167,9 @@ const maps = [
 		<div class="c-p-title-wrap">
 			<div class="container">
 				<BorderLine class="c-p-title" position="top" design="primary">
-					<CustomTitle class="c-p-title__item" tag="h1">Контакты</CustomTitle>
+					<CustomTitle class="c-p-title__item" tag="h1">{{
+						pageTitle
+					}}</CustomTitle>
 				</BorderLine>
 			</div>
 		</div>

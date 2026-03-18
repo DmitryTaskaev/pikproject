@@ -17,11 +17,6 @@ interface AwardsResponse {
 	}
 }
 
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
-	{ title: 'Награды', href: '/awards' },
-]
-
 const fallbackTitle = 'Награды и достижения'
 const fallbackTexts = [
 	'«Производственная Изоляционная Компания» (ООО «ПИК») – одно из крупнейших предприятий Российской Федерации по производству, изоляции и поставке пластиковых труб различного сортамента. Имея историю длиной в двадцать один год, мы создали имидж надёжного поставщика качественной трубной продукции для реализации проектов самой разной сложности.',
@@ -54,6 +49,11 @@ const resolveImageSrc = (src: string) => {
 
 const awardsItem = computed(() => awardsData.value?.data?.items?.[0])
 const pageTitle = computed(() => awardsItem.value?.NAME || fallbackTitle)
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
+	{ title: pageTitle.value, href: '/awards' },
+])
 const texts = computed(() => {
 	const parsed = splitText(awardsItem.value?.PREVIEW_TEXT)
 	return parsed.length ? parsed : fallbackTexts

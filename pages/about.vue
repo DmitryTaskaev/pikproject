@@ -1,8 +1,10 @@
 <script setup lang="ts">
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
-	{ title: 'О компании', href: '/about' },
-]
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const { t } = useSiteI18n()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
+	{ title: String(t('about_breadcrumb_title')), href: '/about' },
+])
 </script>
 
 <template>

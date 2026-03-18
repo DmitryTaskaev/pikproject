@@ -1,13 +1,14 @@
 <script setup lang="ts">
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Каталог', href: '/catalog' },
 	{ title: 'Холодное водоснабжение', href: '/solution' },
 	{
 		title: 'Двухслойная труба ПНД SDR 11 ПИКПАЙП II D200',
 		href: '/product-card',
 	},
-]
+])
 </script>
 
 <template>

@@ -5,6 +5,7 @@ export interface CopyLinkProps {
 	mode?: 'accent'
 }
 const props = defineProps<CopyLinkProps>()
+const { t } = useSiteI18n()
 
 const isCopied = ref(false)
 
@@ -30,7 +31,9 @@ async function copyLinkHandler() {
 	<div class="copy-link" :class="{ 'copy-link_accent': props.mode }">
 		<button class="copy-link__icon" @click="copyLinkHandler">
 			<Icon name="copy-button" />
-			<div v-if="isCopied" class="copy-link__icon--message">Скопировано</div>
+			<div v-if="isCopied" class="copy-link__icon--message">
+				{{ String(t('common_copied')) }}
+			</div>
 		</button>
 		<Text
 			class="copy-link__item"

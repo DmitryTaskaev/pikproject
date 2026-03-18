@@ -8,10 +8,11 @@ import {
 	resolveImageSrc,
 } from '~/composables/products'
 
-const breadcrumbsList = [
-	{ title: 'Главная', href: '/' },
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
 	{ title: 'Каталог', href: '/catalog' },
-]
+])
 
 const config = useRuntimeConfig()
 

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 const headerMenu = ref<HTMLInputElement | null>(null)
-const menuBtnText = ref('меню')
 const menuIsVisible = ref(false)
 const { isSearchActive } = useSearch()
+const { t } = useSiteI18n()
+
+const menuBtnText = computed(() =>
+	menuIsVisible.value
+		? String(t('common_menu_close'))
+		: String(t('common_menu_open')),
+)
 
 function menuBtnHandler() {
 	menuIsVisible.value = !menuIsVisible.value
-	menuBtnText.value = menuIsVisible.value ? 'закрыть' : 'меню'
 }
 </script>
 
@@ -17,7 +22,7 @@ function menuBtnHandler() {
 				<Image
 					class="header__logo--item"
 					src="logo"
-					alt="Производственная Изоляционная Компания"
+					:alt="String(t('header_logo_alt'))"
 				/>
 			</NuxtLink>
 			<div class="header__nav">
