@@ -2,9 +2,17 @@
 interface ExperienceCardProps {
 	title: string
 	text: string
+	detail?: string
 }
 
 const props = defineProps<ExperienceCardProps>()
+const modalTitle = useState('experienceCardModalTitle', () => '')
+const modalText = useState('experienceCardModalText', () => '')
+
+const openModal = () => {
+	modalTitle.value = props.title
+	modalText.value = props.detail || props.text
+}
 </script>
 
 <template>
@@ -23,6 +31,7 @@ const props = defineProps<ExperienceCardProps>()
 			<div
 				class="experience-card__plus modal-opener js-modal-opener"
 				data-modal="experience-card-modal"
+				@click="openModal"
 			>
 				<Icon
 					class="experience-card__plus--icon"

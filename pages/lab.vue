@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useSiteI18n()
+
 interface LabBannerItem {
 	ID: string
 	NAME: string
@@ -6,7 +8,7 @@ interface LabBannerItem {
 	PREVIEW_PICTURE_SRC?: string
 	PROPERTIES?: {
 		SLIDE?: {
-			SRC?: string[]
+			SRC?: string[] | string
 		}
 	}
 }
@@ -126,12 +128,6 @@ interface LabBottomResponse {
 	}
 }
 
-const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
-const breadcrumbsList = computed(() => [
-	{ title: homeBreadcrumbTitle.value, href: '/' },
-	{ title: 'Лаборатория', href: '/lab' },
-])
-
 const config = useRuntimeConfig()
 const { data: labBannerData } = await useLocalizedAsyncData('labBanner', lang =>
 	$fetch<LabBannerResponse>(`${config.app.baseURL}api/labBanner`, {
@@ -166,6 +162,8 @@ const { data: labBottomData } = await useLocalizedAsyncData('labBottom', lang =>
 	}),
 )
 
+const homeBreadcrumbTitle = useHomeBreadcrumbTitle()
+
 const decodeHtml = (value: string) => {
 	return value
 		.replace(/&#40;/g, '(')
@@ -186,13 +184,29 @@ const resolveMediaSrc = (src: string) => {
 
 const isVideo = (src: string) => /\.(mp4|webm|ogv)$/i.test(src)
 
+const labInfoItem = computed(() => labInfoData.value?.data?.items?.[0])
+
+const normalizeArray = (value?: string[] | string) => {
+	if (!value) return []
+	return Array.isArray(value) ? value : [value]
+}
+
+const normalizeText = (value?: string) => {
+	if (!value) return ''
+	return decodeHtml(value)
+		.replace(/\r\n/g, '\n')
+		.replace(/<\/?br\s*\/?>/gi, '\n')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim()
+}
+
 const labSlides = computed(() => {
 	const items = labBannerData.value?.data?.items || []
 	const sortedItems = [...items].sort(
 		(a, b) => Number(a.SORT || 0) - Number(b.SORT || 0),
 	)
 	const slides = sortedItems.flatMap(item => {
-		const sources = item.PROPERTIES?.SLIDE?.SRC || []
+		const sources = normalizeArray(item.PROPERTIES?.SLIDE?.SRC).filter(Boolean)
 		const poster = item.PREVIEW_PICTURE_SRC
 			? resolveMediaSrc(item.PREVIEW_PICTURE_SRC)
 			: ''
@@ -215,27 +229,19 @@ const labSlides = computed(() => {
 	return slides
 })
 
-const labInfoItem = computed(() => labInfoData.value?.data?.items?.[0])
-
-const normalizeArray = (value?: string[] | string) => {
-	if (!value) return []
-	return Array.isArray(value) ? value : [value]
-}
-
 const splitParagraphs = (value?: string) => {
 	if (!value) return []
-	const normalized = value.replace(/<\/?br\s*\/?>/gi, '\n')
-	return normalized
+	return normalizeText(value)
 		.split(/\n\s*\n/)
 		.map(item => item.trim())
 		.filter(Boolean)
 }
 
-const labTitle = computed(() => labInfoItem.value?.NAME || 'Лаборатория')
+const labTitle = computed(() => labInfoItem.value?.NAME || String(t('lab_title')))
 const labCardTitle = computed(
 	() =>
 		labInfoItem.value?.PREVIEW_TEXT ||
-		'Испытательная лаборатория ООО «ПИК» — это современный аккредитованный испытательный центр.',
+		String(t('lab_card_title')),
 )
 const labDescList = computed(() =>
 	splitParagraphs(labInfoItem.value?.DETAIL_TEXT),
@@ -249,17 +255,22 @@ const labPhones = computed(() =>
 const topButton = computed(() => ({
 	text:
 		labInfoItem.value?.PROPERTIES?.TEXT_URL_TOP?.VALUE ||
-		'Смотреть аккредитацию',
+		String(t('lab_top_button')),
 	size: 'sm' as const,
 	href: labInfoItem.value?.PROPERTIES?.URL_TOP?.VALUE || '#',
 }))
 const bottomButton = computed(() => ({
 	text:
 		labInfoItem.value?.PROPERTIES?.TEXT_URL_BOTTOM?.VALUE ||
-		'Подробнее о компании',
+		String(t('lab_bottom_button')),
 	size: 'lg' as const,
-	href: labInfoItem.value?.PROPERTIES?.URL_BOTTOM?.VALUE || '/piktube/about',
+	href: labInfoItem.value?.PROPERTIES?.URL_BOTTOM?.VALUE || '/about',
 }))
+
+const breadcrumbsList = computed(() => [
+	{ title: homeBreadcrumbTitle.value, href: '/' },
+	{ title: labTitle.value, href: '/lab' },
+])
 
 const labParkTitle = computed(
 	() => labParkData.value?.meta?.iblock?.name || 'Парк оборудования',

@@ -165,6 +165,10 @@ export const siteTranslations = {
 		ru: 'Производственные процессы отлажены до мелочей – на предприятии внедрены самые современные инструменты бережливого производства и реализован национальный проект по повышению производительности труда и поддержки занятости.',
 		en: 'Production processes are fine-tuned down to the last detail. The plant uses modern lean manufacturing tools and has implemented a national project to improve labor productivity and employment support.',
 	},
+	about_experience_slider_subtitle: {
+		ru: 'год на рынке',
+		en: 'years on the market',
+	},
 	lab_title: {
 		ru: 'Лаборатория',
 		en: 'Laboratory',

@@ -22,6 +22,18 @@ interface MainTextImageResponse {
 	}
 }
 
+interface CompanyBlockTextItem {
+	NAME?: string
+	PREVIEW_TEXT?: string
+	PREVIEW_PICTURE_SRC?: string
+}
+
+interface CompanyBlockTextResponse {
+	data?: {
+		items?: CompanyBlockTextItem[]
+	}
+}
+
 interface MainSliderBottomItem {
 	NAME?: string
 	SORT?: string
@@ -36,6 +48,23 @@ interface MainSliderBottomItem {
 interface MainSliderBottomResponse {
 	data?: {
 		items?: MainSliderBottomItem[]
+	}
+}
+
+interface CompanySliderBottomItem {
+	NAME?: string
+	SORT?: string
+	PREVIEW_PICTURE_SRC?: string
+	PROPERTIES?: {
+		SLIDE?: {
+			SRC?: string
+		}
+	}
+}
+
+interface CompanySliderBottomResponse {
+	data?: {
+		items?: CompanySliderBottomItem[]
 	}
 }
 
@@ -66,6 +95,15 @@ const mainTextImageData = props.useApi
 		)
 	: { data: ref<MainTextImageResponse | null>(null) }
 
+const companyBlockTextData = !props.useApi
+	? await useLocalizedAsyncData('companyBlockText', lang =>
+			$fetch<CompanyBlockTextResponse>(
+				`${config.app.baseURL}api/companyBlockText`,
+				{ query: { lang } },
+			),
+		)
+	: { data: ref<CompanyBlockTextResponse | null>(null) }
+
 const mainSliderBottomData = props.useApi
 	? await useLocalizedAsyncData('mainSliderBottom', lang =>
 			$fetch<MainSliderBottomResponse>(
@@ -74,6 +112,15 @@ const mainSliderBottomData = props.useApi
 			),
 		)
 	: { data: ref<MainSliderBottomResponse | null>(null) }
+
+const companySliderBottomData = !props.useApi
+	? await useLocalizedAsyncData('companySliderBottom', lang =>
+			$fetch<CompanySliderBottomResponse>(
+				`${config.app.baseURL}api/companySliderBottom`,
+				{ query: { lang } },
+			),
+		)
+	: { data: ref<CompanySliderBottomResponse | null>(null) }
 
 const fallbackSlides: MediaSlide[] = [
 	{
@@ -118,14 +165,18 @@ const splitParagraphs = (value: string) => {
 		.filter(Boolean)
 }
 
-const item = computed(() => mainTextImageData.data.value?.data?.items?.[0])
+const item = computed(() =>
+	props.useApi
+		? mainTextImageData.data.value?.data?.items?.[0]
+		: companyBlockTextData.data.value?.data?.items?.[0],
+)
 
 const titleValue = computed(() =>
-	props.useApi && item.value?.NAME ? item.value.NAME : fallbackTitle,
+	item.value?.NAME || fallbackTitle,
 )
 
 const descBlocks = computed(() => {
-	if (props.useApi && item.value?.PREVIEW_TEXT) {
+	if (item.value?.PREVIEW_TEXT) {
 		return splitParagraphs(item.value.PREVIEW_TEXT)
 	}
 	return fallbackDescList
@@ -142,7 +193,6 @@ const resolveMediaSrc = (src?: string) => {
 }
 
 const imageSrc = computed(() => {
-	if (!props.useApi) return 'production-facilities'
 	return (
 		resolveMediaSrc(item.value?.PREVIEW_PICTURE_SRC) ||
 		'production-facilities'
@@ -152,13 +202,16 @@ const imageSrc = computed(() => {
 const isVideo = (src: string) => /\.(mp4|webm|ogv)$/i.test(src)
 
 const slides = computed<MediaSlide[]>(() => {
-	if (!props.useApi) return fallbackSlides
+	const items = props.useApi
+		? mainSliderBottomData.data.value?.data?.items || []
+		: companySliderBottomData.data.value?.data?.items || []
 
-	const items = mainSliderBottomData.data.value?.data?.items || []
 	const mapped = [...items]
 		.sort((a, b) => Number(a.SORT || 0) - Number(b.SORT || 0))
 		.map(item => {
-			const rawSrc = item.PROPERTIES?.VIDEO?.SRC || ''
+			const rawSrc = props.useApi
+				? item.PROPERTIES?.VIDEO?.SRC || ''
+				: item.PROPERTIES?.SLIDE?.SRC || ''
 			const resolved = resolveMediaSrc(rawSrc)
 			if (!resolved) return null
 			if (isVideo(resolved)) {
