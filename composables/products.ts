@@ -28,6 +28,7 @@ export interface ProductSection {
 	UF_COMPOUND_RU?: string | null
 	UF_SLIDER_RU?: string[] | null
 	UF_SLIDER_RU_FILES?: Array<{ SRC?: string }> | null
+	UF_DETAIL_PHOTO?: string | null
 	PICTURE_SRC?: string
 	UF_SEO_TITLE?: string
 	UF_SEO_DESCRIPTION?: string
@@ -114,6 +115,11 @@ export const resolveImageSrc = (origin: string, src?: string) => {
 	if (/^https?:\/\//.test(src)) return src
 	if (src.startsWith('/')) return `${origin}${src}`
 	return src
+}
+
+export const resolveSectionImageSrc = (origin: string, section?: ProductSection) => {
+	if (!section) return ''
+	return resolveImageSrc(origin, section.UF_DETAIL_PHOTO || section.PICTURE_SRC)
 }
 
 export const chunkArray = <T>(items: T[], size: number) => {

@@ -15,6 +15,7 @@ import {
 	mapListPageValues,
 	normalizePathSegments,
 	resolveImageSrc,
+	resolveSectionImageSrc,
 	findSectionByPath,
 	resolvePathNodes,
 	resolveSectionCode,
@@ -61,6 +62,7 @@ interface ConstructionSectionNode {
 		NAME: string
 		DESCRIPTION?: string
 		['~DESCRIPTION']?: string
+		UF_DETAIL_PHOTO?: string | null
 		PICTURE_SRC?: string
 	}
 	ITEMS?: ConstructionPointItem[]
@@ -79,6 +81,7 @@ interface CompoundSectionNode {
 		NAME: string
 		DESCRIPTION?: string
 		['~DESCRIPTION']?: string
+		UF_DETAIL_PHOTO?: string | null
 		PICTURE_SRC?: string
 		UF_TYPE_RU?: string | null
 		['~UF_TYPE_RU']?: string | null
@@ -240,9 +243,7 @@ const resolveSectionType = (
 const sectionType = computed(() => resolveSectionType(section.value, items.value))
 const isIndustry = computed(() => sectionType.value === 'INDUSTRY')
 const industryPicture = computed(() =>
-	section.value?.PICTURE_SRC
-		? resolveImageSrc(config.public.apiOrigin, section.value.PICTURE_SRC)
-		: '',
+	resolveSectionImageSrc(config.public.apiOrigin, section.value),
 )
 const industrySliderSlides = computed(() => {
 	const raw =
@@ -300,9 +301,10 @@ const constructionSlides = computed<ConstructionSlideProps[]>(() => {
 		const description = normalizeConstructionText(
 			child.SECTION.DESCRIPTION || child.SECTION['~DESCRIPTION'],
 		)
-		const imageSrc = child.SECTION.PICTURE_SRC
-			? resolveImageSrc(config.public.apiOrigin, child.SECTION.PICTURE_SRC)
-			: ''
+		const imageSrc = resolveSectionImageSrc(
+			config.public.apiOrigin,
+			child.SECTION,
+		)
 		const points = (child.ITEMS || [])
 			.map(item => {
 				const props = item.PROPERTIES || {}
@@ -375,9 +377,10 @@ const compoundSliders = computed(() => {
 					const description = normalizeConstructionText(
 						child.SECTION.DESCRIPTION || child.SECTION['~DESCRIPTION'],
 					)
-					const imageSrc = child.SECTION.PICTURE_SRC
-						? resolveImageSrc(config.public.apiOrigin, child.SECTION.PICTURE_SRC)
-						: ''
+					const imageSrc = resolveSectionImageSrc(
+						config.public.apiOrigin,
+						child.SECTION,
+					)
 					const points = (child.ITEMS || [])
 						.map(item => {
 							const props = item.PROPERTIES || {}
@@ -564,8 +567,7 @@ const heroMeasures = computed(() => {
 })
 
 const viewPicture = computed(() => {
-	const src = section.value?.PICTURE_SRC
-	return src ? resolveImageSrc(config.public.apiOrigin, src) : ''
+	return resolveSectionImageSrc(config.public.apiOrigin, section.value)
 })
 
 const tableRowLimit = 6
@@ -640,9 +642,17 @@ const tableAllItems = computed(() => {
 	return result
 })
 
+const isSdrProperty = (code: string, name = '') => {
+	const upper = code.toUpperCase()
+	const lowerName = name.toLowerCase()
+	return upper.includes('SDR') || lowerName.includes('sdr')
+}
+
 const tableProperties = computed(() => {
 	const list = collectListPageProperties(tableAllItems.value)
-	if (list.length > 0) return list.slice(0, tableRowLimit)
+	if (list.length > 0) {
+		return list.filter(item => !isSdrProperty(item.code, item.name)).slice(0, tableRowLimit)
+	}
 	const map = new Map<string, { code: string; name: string; sort: number }>()
 	for (const item of tableAllItems.value) {
 		const props = item.PROPERTIES || {}
@@ -659,6 +669,7 @@ const tableProperties = computed(() => {
 		}
 	}
 	return Array.from(map.values())
+		.filter(item => !isSdrProperty(item.code, item.name))
 		.sort((a, b) => a.sort - b.sort)
 		.slice(0, tableRowLimit)
 })
@@ -871,9 +882,7 @@ const formatRowValues = (values: string[]) => {
 const isClickableProperty = (code: string, name: string) => {
 	const upper = code.toUpperCase()
 	if (upper.includes('DIAMETR')) return true
-	if (upper.includes('SDR')) return true
 	if (name.toLowerCase().includes('диаметр')) return true
-	if (name.toLowerCase().includes('sdr')) return true
 	return false
 }
 

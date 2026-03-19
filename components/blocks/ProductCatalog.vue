@@ -205,12 +205,18 @@ const servicesList = computed(() => {
 	const top = sectionsFlat.value.filter(entry => entry.depth === 1)
 	if (top.length === 0) return []
 	const icons = fallbackServicesList.map(item => item.icon)
-	return top.map((entry, index) => ({
-		icon: icons[index] || { name: 'pipes', isSprite: false },
-		title: [entry.node.SECTION.NAME],
-		href: entry.node.SECTION.UF_TYPE_ELEMENT ? makeSectionHref(entry.node, entry.path) : '',
-		links: buildChildLinks(entry.node, entry.path),
-	}))
+	return top.map((entry, index) => {
+		const sectionName = entry.node.SECTION.NAME
+		const shouldSplit = sectionName === 'Водоснабжение'
+		return {
+			icon: icons[index] || { name: 'pipes', isSprite: false },
+			title: [sectionName],
+			href: entry.node.SECTION.UF_TYPE_ELEMENT
+				? makeSectionHref(entry.node, entry.path)
+				: '',
+			links: shouldSplit ? buildChildLinks(entry.node, entry.path) : [],
+		}
+	})
 })
 
 // productsList stays static for now per requirements
