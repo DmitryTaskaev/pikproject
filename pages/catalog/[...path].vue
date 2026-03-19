@@ -62,7 +62,7 @@ interface ConstructionSectionNode {
 		NAME: string
 		DESCRIPTION?: string
 		['~DESCRIPTION']?: string
-		UF_DETAIL_PHOTO?: string | null
+		DETAIL_PICTURE_SRC?: string | null
 		PICTURE_SRC?: string
 	}
 	ITEMS?: ConstructionPointItem[]
@@ -81,7 +81,7 @@ interface CompoundSectionNode {
 		NAME: string
 		DESCRIPTION?: string
 		['~DESCRIPTION']?: string
-		UF_DETAIL_PHOTO?: string | null
+		DETAIL_PICTURE_SRC?: string | null
 		PICTURE_SRC?: string
 		UF_TYPE_RU?: string | null
 		['~UF_TYPE_RU']?: string | null
@@ -222,7 +222,7 @@ const currentItem = computed(() => {
 })
 
 const isItemPage = computed(() => Boolean(currentItem.value))
-type SectionType = 'INDUSTRY' | 'VIEW'
+type SectionType = 'INDUSTRY' | 'DIAMETR' | 'VIEW'
 
 const resolveSectionType = (
 	sectionValue: typeof section.value,
@@ -234,7 +234,11 @@ const resolveSectionType = (
 			'~UF_TYPE_ELEMENT'
 		]
 	const normalized = String(raw || '').toUpperCase()
-	if (normalized === 'INDUSTRY' || normalized === 'VIEW') {
+	if (
+		normalized === 'INDUSTRY' ||
+		normalized === 'DIAMETR' ||
+		normalized === 'VIEW'
+	) {
 		return normalized as SectionType
 	}
 	return sectionItems.length > 0 ? 'VIEW' : 'INDUSTRY'
@@ -242,6 +246,11 @@ const resolveSectionType = (
 
 const sectionType = computed(() => resolveSectionType(section.value, items.value))
 const isIndustry = computed(() => sectionType.value === 'INDUSTRY')
+const isDiametr = computed(() => sectionType.value === 'DIAMETR')
+const isView = computed(() => sectionType.value === 'VIEW')
+const isIndustryLike = computed(
+	() => sectionType.value === 'INDUSTRY' || sectionType.value === 'DIAMETR',
+)
 const industryPicture = computed(() =>
 	resolveSectionImageSrc(config.public.apiOrigin, section.value),
 )
@@ -439,6 +448,56 @@ const viewSections = computed<VariantSectionNode[]>(() => {
 	return variantChildren.value.filter(child => resolveNodeType(child) === 'VIEW')
 })
 
+const sectionPathNodes = computed(() => {
+	const tree = treeData.value?.data?.TREE || []
+	return resolvePathNodes(
+		tree,
+		isItemPage.value ? sectionSegmentsForItem.value : pathSegments.value,
+	)
+})
+
+const findAncestorByType = (type: SectionType) => {
+	for (let i = sectionPathNodes.value.length - 1; i >= 0; i -= 1) {
+		const node = sectionPathNodes.value[i]
+		if (resolveNodeType(node as VariantSectionNode) === type) return node
+	}
+	return null
+}
+
+const diametrAncestorNode = computed(() => findAncestorByType('DIAMETR'))
+const inheritedDiametrSection = computed(() => diametrAncestorNode.value?.SECTION || null)
+const findDiametrSectionBySegments = (segments: string[]) => {
+	const tree = treeData.value?.data?.TREE || []
+	const nodes = resolvePathNodes(tree, segments)
+	for (let i = nodes.length - 1; i >= 0; i -= 1) {
+		const node = nodes[i]
+		if (resolveNodeType(node as VariantSectionNode) === 'DIAMETR') {
+			return node.SECTION
+		}
+	}
+	return null
+}
+const resolveInheritedCatalogImage = (
+	segments: string[],
+	sectionValue?: { PICTURE_SRC?: string; DETAIL_PICTURE_SRC?: string | null } | null,
+	itemPreview?: string,
+) => {
+	const diametrSection = findDiametrSectionBySegments(segments)
+	if (diametrSection) {
+		const diametrImage = resolveSectionImageSrc(
+			config.public.apiOrigin,
+			diametrSection,
+		)
+		if (diametrImage) return diametrImage
+	}
+	const sectionImage = resolveSectionImageSrc(
+		config.public.apiOrigin,
+		sectionValue || undefined,
+	)
+	if (sectionImage) return sectionImage
+	return resolveImageSrc(config.public.apiOrigin, itemPreview)
+}
+
 const collectVariantSections = (
 	nodes: VariantSectionNode[],
 	parentSegments: string[] = [],
@@ -482,7 +541,11 @@ const buildCatalogSection = (node: VariantSectionNode) => {
 	const titleList = listPageProps.map(item => `${item.name}:`)
 	const cards = (node.ITEMS || []).map(item => ({
 		image: {
-			src: resolveImageSrc(config.public.apiOrigin, item.PREVIEW_PICTURE_SRC),
+			src: resolveInheritedCatalogImage(
+				baseSegments,
+				node.SECTION,
+				item.PREVIEW_PICTURE_SRC,
+			),
 			alt: item.NAME,
 		} as ImageProps,
 		name: item.NAME,
@@ -530,7 +593,11 @@ const titleList = computed(() =>
 const slides = computed(() => {
 	const cards: PipeCardProps[] = items.value.map(item => ({
 		image: {
-			src: resolveImageSrc(config.public.apiOrigin, item.PREVIEW_PICTURE_SRC),
+			src: resolveInheritedCatalogImage(
+				pathSegments.value,
+				section.value,
+				item.PREVIEW_PICTURE_SRC,
+			),
 			alt: item.NAME,
 		} as ImageProps,
 		name: item.NAME,
@@ -552,7 +619,11 @@ const normalizeSectionDescription = (value?: string) => {
 }
 
 const heroDescriptions = computed(() => {
-	const description = normalizeSectionDescription(section.value?.DESCRIPTION)
+	const sourceSection =
+		!isIndustryLike.value && inheritedDiametrSection.value
+			? inheritedDiametrSection.value
+			: section.value
+	const description = normalizeSectionDescription(sourceSection?.DESCRIPTION)
 	return description ? [description] : []
 })
 
@@ -567,7 +638,11 @@ const heroMeasures = computed(() => {
 })
 
 const viewPicture = computed(() => {
-	return resolveSectionImageSrc(config.public.apiOrigin, section.value)
+	const sourceSection =
+		!isIndustryLike.value && inheritedDiametrSection.value
+			? inheritedDiametrSection.value
+			: section.value
+	return resolveSectionImageSrc(config.public.apiOrigin, sourceSection || undefined)
 })
 
 const tableRowLimit = 6
@@ -575,6 +650,67 @@ const tableRowLimit = 6
 type ViewSectionEntry = {
 	node: VariantSectionNode
 	pathSegments: string[]
+}
+
+type ItemWithPath = {
+	item: any
+	pathSegments: string[]
+}
+
+type VariantGroupEntry = {
+	node: VariantSectionNode
+	pathSegments: string[]
+	itemsWithPath: ItemWithPath[]
+}
+
+const dedupeItemsWithPath = (list: ItemWithPath[]) => {
+	const seen = new Set<string>()
+	return list.filter(entry => {
+		const key = String(
+			entry.item?.ID ||
+				entry.item?.CODE ||
+				entry.item?.['~CODE'] ||
+				entry.item?.NAME ||
+				'',
+		)
+		if (!key || seen.has(key)) return false
+		seen.add(key)
+		return true
+	})
+}
+
+const collectItemsWithPath = (
+	node: VariantSectionNode,
+	parentSegments: string[] = [],
+): ItemWithPath[] => {
+	const code = resolveSectionCode(node.SECTION)
+	const currentSegments = code ? [...parentSegments, code] : parentSegments
+	const currentItems = ((node.ITEMS || []) as any[]).map(item => ({
+		item,
+		pathSegments: currentSegments,
+	}))
+	const childItems = (node.CHILDREN || []).flatMap(child =>
+		collectItemsWithPath(child, currentSegments),
+	)
+	return dedupeItemsWithPath([...currentItems, ...childItems])
+}
+
+const collectItemsWithCurrentPath = (
+	node: VariantSectionNode,
+	currentSegments: string[],
+): ItemWithPath[] => {
+	const currentItems = ((node.ITEMS || []) as any[]).map(item => ({
+		item,
+		pathSegments: currentSegments,
+	}))
+	const childItems = (node.CHILDREN || []).flatMap(child => {
+		const childCode = resolveSectionCode(child.SECTION)
+		const childSegments = childCode
+			? [...currentSegments, childCode]
+			: currentSegments
+		return collectItemsWithCurrentPath(child, childSegments)
+	})
+	return dedupeItemsWithPath([...currentItems, ...childItems])
 }
 
 const collectViewSections = (
@@ -592,54 +728,45 @@ const collectViewSections = (
 	return result
 }
 
-const tableViewSections = computed(() => {
+const variantGroups = computed<VariantGroupEntry[]>(() => {
+	if (isView.value) {
+		if (!treeNode.value && !section.value) return []
+		const node =
+			(treeNode.value as VariantSectionNode | null) ||
+			({
+				SECTION: section.value,
+				ITEMS: items.value,
+			} as VariantSectionNode)
+		return [
+			{
+				node,
+				pathSegments: pathSegments.value,
+				itemsWithPath: collectItemsWithCurrentPath(node, pathSegments.value),
+			},
+		].filter(entry => entry.itemsWithPath.length > 0)
+	}
+
 	return variantChildren.value
 		.map(child => {
 			const code = resolveSectionCode(child.SECTION)
 			if (!code) return null
-			return { node: child, pathSegments: [...pathSegments.value, code] }
+			const currentSegments = [...pathSegments.value, code]
+			return {
+				node: child,
+				pathSegments: currentSegments,
+				itemsWithPath: collectItemsWithPath(child, pathSegments.value),
+			}
 		})
-		.filter(Boolean) as ViewSectionEntry[]
+		.filter(
+			(entry): entry is VariantGroupEntry =>
+				Boolean(entry) && entry.itemsWithPath.length > 0,
+		)
 })
 
-const viewIds = computed(() =>
-	tableViewSections.value.map(entry => entry.node.SECTION.ID).join(','),
-)
-
-const { data: viewDetailsData } = await useLocalizedAsyncData(
-	() => `catalog-view-items-${pathString.value}-${viewIds.value}`,
-	async lang => {
-		if (!viewIds.value) return []
-		const entries = tableViewSections.value
-		const responses = await Promise.all(
-			entries.map(entry =>
-				$fetch<ProductSectionDetailResponse>(`${config.app.baseURL}api/products`, {
-					query: { section_id: entry.node.SECTION.ID, lang },
-				}),
-			),
-		)
-		return responses.map((res, index) => ({
-			entry: entries[index],
-			section: res.data?.SECTION || entries[index].node.SECTION,
-			items: res.data?.ITEMS || [],
-		}))
-	},
-	{ watch: [viewIds] },
-)
-
 const tableAllItems = computed(() => {
-	const list = viewDetailsData.value || []
-	const seen = new Set<string>()
-	const result: any[] = []
-	for (const entry of list) {
-		for (const item of entry.items || []) {
-			const id = String(item.ID || item.CODE || item['~CODE'] || '')
-			if (id && seen.has(id)) continue
-			if (id) seen.add(id)
-			result.push(item)
-		}
-	}
-	return result
+	return dedupeItemsWithPath(
+		variantGroups.value.flatMap(entry => entry.itemsWithPath),
+	).map(entry => entry.item)
 })
 
 const isSdrProperty = (code: string, name = '') => {
@@ -648,11 +775,38 @@ const isSdrProperty = (code: string, name = '') => {
 	return upper.includes('SDR') || lowerName.includes('sdr')
 }
 
+const isDiametrProperty = (code: string, name = '') => {
+	const upper = code.toUpperCase()
+	const lowerName = name.toLowerCase()
+	return upper.includes('DIAMETR') || lowerName.includes('диаметр')
+}
+
 const tableProperties = computed(() => {
-	const list = collectListPageProperties(tableAllItems.value)
-	if (list.length > 0) {
+	const applyTablePropertyRules = (
+		list: Array<{ code: string; name: string; sort: number }>,
+	) => {
+		if (isDiametr.value) {
+			return list
+				.filter(item => !isDiametrProperty(item.code, item.name))
+				.sort((a, b) => {
+					const aOrder = isSdrProperty(a.code, a.name) ? 0 : 1
+					const bOrder = isSdrProperty(b.code, b.name) ? 0 : 1
+					if (aOrder !== bOrder) return aOrder - bOrder
+					return a.sort - b.sort
+				})
+				.slice(0, tableRowLimit)
+		}
+		if (isView.value) {
+			return list.slice(0, tableRowLimit)
+		}
 		return list.filter(item => !isSdrProperty(item.code, item.name)).slice(0, tableRowLimit)
 	}
+
+	const list = collectListPageProperties(tableAllItems.value)
+	if (list.length > 0) {
+		return applyTablePropertyRules(list)
+	}
+
 	const map = new Map<string, { code: string; name: string; sort: number }>()
 	for (const item of tableAllItems.value) {
 		const props = item.PROPERTIES || {}
@@ -668,10 +822,10 @@ const tableProperties = computed(() => {
 			}
 		}
 	}
-	return Array.from(map.values())
-		.filter(item => !isSdrProperty(item.code, item.name))
-		.sort((a, b) => a.sort - b.sort)
-		.slice(0, tableRowLimit)
+
+	return applyTablePropertyRules(
+		Array.from(map.values()).sort((a, b) => a.sort - b.sort),
+	)
 })
 
 const tableTitles = computed(() => {
@@ -718,12 +872,26 @@ const itemSlides = computed(() => {
 		gallery?.FILES?.map(file => file.SRC).filter(Boolean) ||
 		[]
 	const uniqueSources = sources.filter(Boolean)
-	return uniqueSources.map(src => ({
+	const slides = uniqueSources.map(src => ({
 		image: {
 			src: resolveImageSrc(config.public.apiOrigin, src),
 			alt: currentItem.value?.NAME || 'Изображение',
 		},
 	}))
+	if (slides.length > 0) return slides
+	const inheritedImage = resolveSectionImageSrc(
+		config.public.apiOrigin,
+		inheritedDiametrSection.value || undefined,
+	)
+	if (!inheritedImage) return []
+	return [
+		{
+			image: {
+				src: inheritedImage,
+				alt: currentItem.value?.NAME || 'Изображение',
+			},
+		},
+	]
 })
 
 const itemDocuments = computed(() => {
@@ -787,7 +955,11 @@ const itemOtherCards = computed<PipeCardProps[]>(() => {
 		})
 		.map(item => ({
 			image: {
-				src: resolveImageSrc(config.public.apiOrigin, item.PREVIEW_PICTURE_SRC),
+				src: resolveInheritedCatalogImage(
+					sectionSegmentsForItem.value,
+					section.value,
+					item.PREVIEW_PICTURE_SRC,
+				),
 				alt: item.NAME,
 			} as ImageProps,
 			name: item.NAME,
@@ -813,7 +985,7 @@ const itemHeroTitle = computed(() => currentItem.value?.NAME || '')
 const itemHeroDesc = computed(() =>
 	currentItem.value?.PREVIEW_TEXT
 		? decodeHtml(currentItem.value.PREVIEW_TEXT)
-		: '',
+		: normalizeSectionDescription(inheritedDiametrSection.value?.DESCRIPTION),
 )
 
 const getItemSeoValue = (key: 'SEO_TITLE' | 'SEO_DESCRIPTION') => {
@@ -880,9 +1052,9 @@ const formatRowValues = (values: string[]) => {
 }
 
 const isClickableProperty = (code: string, name: string) => {
-	const upper = code.toUpperCase()
-	if (upper.includes('DIAMETR')) return true
-	if (name.toLowerCase().includes('диаметр')) return true
+	if (isView.value) return false
+	if (isDiametr.value) return isSdrProperty(code, name)
+	if (isDiametrProperty(code, name)) return true
 	return false
 }
 
@@ -895,6 +1067,7 @@ const tableClickableRows = computed(() => {
 })
 
 const tableDropdowns = computed(() => {
+	if (isView.value) return tableProperties.value.map(() => null)
 	return tableProperties.value.map(prop => {
 		if (!isClickableProperty(prop.code, prop.name)) return null
 		const values = collectPropertyValues(tableAllItems.value, prop.code)
@@ -908,59 +1081,151 @@ const buildItemHref = (segments: string[], code: string) => {
 }
 
 const buildValueLinks = (
-	itemsList: Array<{ PROPERTIES?: Record<string, ProductProperty>; CODE?: string; ['~CODE']?: string }>,
+	itemsList: ItemWithPath[],
 	propCode: string,
-	entrySegments: string[],
 ) => {
 	const map = new Map<string, string>()
-	for (const item of itemsList) {
-		const raw = item.PROPERTIES?.[propCode]?.VALUE
+	for (const entry of itemsList) {
+		const raw = entry.item?.PROPERTIES?.[propCode]?.VALUE
 		if (raw === undefined || raw === null || raw === '') continue
 		const value = String(raw).trim()
-		const code = item.CODE || item['~CODE'] || ''
+		const code = entry.item?.CODE || entry.item?.['~CODE'] || ''
 		if (!value || !code) continue
 		if (!map.has(value)) {
-			map.set(value, buildItemHref(entrySegments, code))
+			map.set(value, buildItemHref(entry.pathSegments, code))
+		}
+	}
+	return map
+}
+
+const buildSectionValueLinks = (
+	groups: VariantGroupEntry[],
+	propCode: string,
+) => {
+	const map = new Map<string, string>()
+	for (const group of groups) {
+		const groupItems = group.itemsWithPath.map(entry => entry.item)
+		const value = collectPropertyValues(groupItems, propCode)[0]
+		if (!value) continue
+		if (!map.has(value)) {
+			map.set(value, withBasePath(`/catalog/${group.pathSegments.join('/')}`))
 		}
 	}
 	return map
 }
 
 const productTableSlides = computed(() => {
-	if (!isIndustry.value) return []
-	const list = viewDetailsData.value || []
-	const cards = list
-		.filter(item => item.items && item.items.length > 0)
-		.map(item => {
-		const itemsList = item.items
-		const sectionInfo = item.section || item.entry.node.SECTION
-		const entry = item.entry
+	if (!isIndustryLike.value && !isView.value) return []
+	if (isDiametr.value) {
+		const cards = variantGroups.value
+			.filter(entry => entry.itemsWithPath.length > 0)
+			.map(entry => {
+				const itemsList = entry.itemsWithPath.map(item => item.item)
+				const sectionInfo = entry.node.SECTION
+				const rows = tableProperties.value.map(prop => {
+					const values = collectPropertyValues(itemsList, prop.code)
+					return formatRowValues(values)
+				})
+				const rowLinks = tableProperties.value.map(prop => {
+					if (!isClickableProperty(prop.code, prop.name)) return []
+					const valueLinks = buildValueLinks(entry.itemsWithPath, prop.code)
+					const values = collectPropertyValues(itemsList, prop.code)
+					const lines = formatRowValues(values)
+					return lines.map(line =>
+						line.map(value => valueLinks.get(value) || ''),
+					)
+				})
+				const preview =
+					resolveInheritedCatalogImage(
+						entry.pathSegments,
+						sectionInfo,
+						itemsList.find(item => item.PREVIEW_PICTURE_SRC)?.PREVIEW_PICTURE_SRC,
+					) || 'production/product-01'
+				return {
+					caption: {
+						title: sectionInfo.NAME,
+						image: {
+							src: preview,
+							alt: sectionInfo.NAME,
+						} as ImageProps,
+						href: withBasePath(`/catalog/${entry.pathSegments.join('/')}`),
+					},
+					rows,
+					clickableRows: tableClickableRows.value,
+					rowLinks,
+				}
+			})
+		return chunkArray(cards, 5)
+	}
+	if (isView.value) {
+		const itemsWithPath = dedupeItemsWithPath(
+			variantGroups.value.flatMap(entry => entry.itemsWithPath),
+		)
+		const cards = itemsWithPath.map(entry => {
+			const item = entry.item
+			const rows = tableProperties.value.map(prop => {
+				const raw = item?.PROPERTIES?.[prop.code]?.VALUE
+				const value =
+					raw === undefined || raw === null || raw === '' ? [] : [String(raw).trim()]
+				return formatRowValues(value)
+			})
+			const preview = resolveInheritedCatalogImage(
+				entry.pathSegments,
+				section.value,
+				item?.PREVIEW_PICTURE_SRC,
+			) || 'production/product-01'
+			return {
+				caption: {
+					title: item?.NAME || section.value?.NAME || '',
+					image: {
+						src: preview,
+						alt: item?.NAME || section.value?.NAME || '',
+					} as ImageProps,
+					href: buildItemHref(
+						entry.pathSegments,
+						item?.CODE || item?.['~CODE'] || '',
+					),
+				},
+				rows,
+				clickableRows: [],
+				rowLinks: tableProperties.value.map(() => []),
+			}
+		})
+		return chunkArray(cards, 5)
+	}
+	const cards = variantGroups.value
+		.filter(entry => entry.itemsWithPath.length > 0)
+		.map(entry => {
+		const itemsList = entry.itemsWithPath.map(item => item.item)
+		const sectionInfo = entry.node.SECTION
 		const rows = tableProperties.value.map(prop => {
 			const values = collectPropertyValues(itemsList, prop.code)
 			return formatRowValues(values)
 		})
 		const rowLinks = tableProperties.value.map(prop => {
 			if (!isClickableProperty(prop.code, prop.name)) return []
-			const valueLinks = buildValueLinks(itemsList, prop.code, entry.pathSegments)
+			const valueLinks = buildValueLinks(entry.itemsWithPath, prop.code)
 			const values = collectPropertyValues(itemsList, prop.code)
 			const lines = formatRowValues(values)
 			return lines.map(line =>
 				line.map(value => valueLinks.get(value) || ''),
 			)
-		})
-		const preview =
-			itemsList.find(item => item.PREVIEW_PICTURE_SRC)?.PREVIEW_PICTURE_SRC ||
-			sectionInfo.PICTURE_SRC ||
-			'production/product-01'
-		const href = withBasePath(`/catalog/${entry.pathSegments.join('/')}`)
-		return {
-			caption: {
-				title: sectionInfo.NAME,
-			image: {
-					src: resolveImageSrc(config.public.apiOrigin, preview),
-					alt: sectionInfo.NAME,
-				} as ImageProps,
-				href,
+			})
+			const preview =
+				resolveInheritedCatalogImage(
+					entry.pathSegments,
+					sectionInfo,
+					itemsList.find(item => item.PREVIEW_PICTURE_SRC)?.PREVIEW_PICTURE_SRC,
+				) || 'production/product-01'
+			const href = withBasePath(`/catalog/${entry.pathSegments.join('/')}`)
+			return {
+				caption: {
+					title: sectionInfo.NAME,
+					image: {
+						src: preview,
+						alt: sectionInfo.NAME,
+					} as ImageProps,
+					href,
 			},
 			rows,
 			clickableRows: tableClickableRows.value,
@@ -971,19 +1236,9 @@ const productTableSlides = computed(() => {
 })
 
 const catalogItems = computed(() => {
-	const list = viewDetailsData.value || []
-	const seen = new Set<string>()
-	const result: Array<{ item: any; pathSegments: string[] }> = []
-	for (const entry of list) {
-		const entryPath = entry.entry?.pathSegments || pathSegments.value
-		for (const item of entry.items || []) {
-			const id = String(item.ID || item.CODE || item['~CODE'] || '')
-			if (id && seen.has(id)) continue
-			if (id) seen.add(id)
-			result.push({ item, pathSegments: entryPath })
-		}
-	}
-	return result
+	return dedupeItemsWithPath(
+		variantGroups.value.flatMap(entry => entry.itemsWithPath),
+	)
 })
 
 const uniqueByName = (list: Array<{ code: string; name: string; sort: number }>) => {
@@ -1021,7 +1276,11 @@ const catalogSlides = computed(() => {
 	}
 	const cards: PipeCardProps[] = catalogItems.value.map(entry => ({
 		image: {
-			src: resolveImageSrc(config.public.apiOrigin, entry.item.PREVIEW_PICTURE_SRC),
+			src: resolveInheritedCatalogImage(
+				entry.pathSegments,
+				section.value,
+				entry.item.PREVIEW_PICTURE_SRC,
+			),
 			alt: entry.item.NAME,
 		} as ImageProps,
 		name: entry.item.NAME,
@@ -1143,48 +1402,55 @@ const servicesLinkHref = computed(() => {
 		</template>
 		<template v-else>
 		<HeroVideo
-			v-if="isIndustry && industrySliderSlides.length"
+			v-if="isIndustryLike && industrySliderSlides.length"
 			:slides="industrySliderSlides"
 		/>
 		<SHero
-			v-if="isIndustry"
+			v-if="isIndustryLike"
 			:title="heroTitle"
 			:descriptions="heroDescriptions"
 			:image-src="industryPicture"
 		/>
 		<TableSection
-			v-if="isIndustry && productTableSlides.length"
+			v-if="isIndustryLike && productTableSlides.length"
 			title="Варианты труб"
 			:titles="tableTitles"
 			:dropdowns="tableDropdowns"
 			:slides="productTableSlides"
 		/>
 		<CatalogSection
-			v-if="isIndustry && catalogSlides.length"
+			v-if="isIndustryLike && catalogSlides.length"
 			:title="['Каталог труб']"
 			:title-list="catalogTitleList"
 			:slides="catalogSlides"
 		/>
 		<FittingBlock
-			v-if="isIndustry"
+			v-if="isIndustryLike"
 			:list-item="fitting"
 			:is-big-btn="true"
 			title="Фитинги"
 		/>
 		<ConstructionSection
-			v-if="isIndustry && constructionSlides.length"
+			v-if="isIndustryLike && constructionSlides.length"
 			title="Конструкция"
 			:slides="constructionSlides"
 		/>
 		<PPHero
-			v-if="!isIndustry"
+			v-if="!isIndustryLike"
 			:title="heroTitle"
 			:descriptions="heroDescriptions"
 			:measures="heroMeasures"
 			:image-src="viewPicture"
 		/>
+		<TableSection
+			v-if="isView && productTableSlides.length"
+			title="Варианты труб"
+			:titles="tableTitles"
+			:dropdowns="tableDropdowns"
+			:slides="productTableSlides"
+		/>
 		<ConstructionSection
-			v-if="!isIndustry && constructionSlides.length"
+			v-if="!isIndustryLike && constructionSlides.length"
 			title="Конструкция"
 			:slides="constructionSlides"
 		/>
@@ -1194,7 +1460,7 @@ const servicesLinkHref = computed(() => {
 			:sliders="compoundSliders"
 		/>
 		<PPCatalog
-			v-if="!isIndustry"
+			v-if="!isIndustryLike"
 			:title="heroTitle ? ['Полный каталог', heroTitle] : ['Полный каталог']"
 			:title-list="titleList"
 			:slides="slides"

@@ -193,12 +193,6 @@ function handleBtnClick() {
 		}
 	}
 	&_active {
-		.product-table-card {
-			grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
-		}
-		.table-feature {
-			grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
-		}
 	}
 }
 </style>

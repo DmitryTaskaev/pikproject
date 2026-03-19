@@ -66,10 +66,22 @@ const resolvedRowLinks = computed(() => {
 		})
 	})
 })
+
+const visibleRowCount = computed(() => {
+	return Math.max(
+		1,
+		resolvedRows.value.filter(row => {
+			return row.some(line => line.some(Boolean))
+		}).length,
+	)
+})
 </script>
 
 <template>
-	<div class="product-table-card">
+	<div
+		class="product-table-card"
+		:style="{ '--table-row-count': String(visibleRowCount) }"
+	>
 		<div class="product-table-card__caption">
 			<Image class="product-table-card__caption--img" v-bind="props.caption.image" />
 			<Text
@@ -121,7 +133,7 @@ const resolvedRowLinks = computed(() => {
 .product-table-card {
 	display: grid;
 	grid-template-columns: minmax(224px, 1fr);
-	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
+	grid-template-rows: 205px repeat(var(--table-row-count, 6), minmax(122px, auto));
 	&__caption,
 	&__wrap {
 		display: flex;
@@ -132,8 +144,14 @@ const resolvedRowLinks = computed(() => {
 		gap: 14px;
 		align-items: flex-start;
 		&--img {
-			width: 171px;
+			width: 100%;
+			max-width: 171px;
 			height: 100px;
+			object-fit: contain;
+			object-position: center;
+			padding: 8px;
+			border-radius: 12px;
+			background: #f4f7fc;
 		}
 		&--title {
 		}

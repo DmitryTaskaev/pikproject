@@ -20,10 +20,19 @@ const resolvedDropdowns = computed(() => {
 	if (list.length >= 6) return list.slice(0, 6)
 	return list.concat(Array(6 - list.length).fill(null))
 })
+
+const visibleRowCount = computed(() => {
+	return Math.max(
+		1,
+		resolvedTitles.value.filter((title, idx) => {
+			return Boolean(title) || Boolean(resolvedDropdowns.value[idx])
+		}).length,
+	)
+})
 </script>
 
 <template>
-	<div class="table-feature">
+	<div class="table-feature" :style="{ '--table-row-count': String(visibleRowCount) }">
 		<div class="table-feature__caption">Наименование:</div>
 		<div class="table-feature__wrap" v-for="(title, idx) in resolvedTitles" :key="idx">
 			<template v-if="title">
@@ -43,7 +52,7 @@ const resolvedDropdowns = computed(() => {
 	// grid-template-columns: minmax(224px, 1fr);
 	width: 224px;
 	flex: 0 0 224px;
-	grid-template-rows: 205px repeat(4, 122px) repeat(2, 141px);
+	grid-template-rows: 205px repeat(var(--table-row-count, 6), minmax(122px, auto));
 	&__caption,
 	&__wrap {
 		padding: 26px;
