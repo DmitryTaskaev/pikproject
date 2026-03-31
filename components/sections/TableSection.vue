@@ -10,6 +10,7 @@ interface TableSectionProps {
 
 const btnText = ref('Показать больше')
 const isBtnActive = ref(false)
+const captionHeight = ref(205)
 
 const { title, slides, titles, dropdowns } = defineProps<TableSectionProps>()
 const instanceId = useId().replace(/:/g, '')
@@ -41,6 +42,10 @@ function handleBtnClick() {
 		isBtnActive.value = true
 	}
 }
+
+function handleCaptionHeightChange(value: number) {
+	captionHeight.value = Math.max(captionHeight.value, value, 205)
+}
 </script>
 
 <template>
@@ -70,11 +75,17 @@ function handleBtnClick() {
 									:icon="{ name: 'button-arrow', mode: 'next' }"
 								/>
 							</div>
-							<TableFeature :titles="resolvedTitles" :dropdowns="dropdowns" />
+							<TableFeature
+								:titles="resolvedTitles"
+								:dropdowns="dropdowns"
+								:caption-height="captionHeight"
+							/>
 							<product-table-slider
 								:slides="slides"
 								:nav-prev-class="navPrevClass"
 								:nav-next-class="navNextClass"
+								:caption-height="captionHeight"
+								@caption-height-change="handleCaptionHeightChange"
 							/>
 						</div>
 					</div>

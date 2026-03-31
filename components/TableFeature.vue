@@ -2,6 +2,7 @@
 interface TableFeatureProps {
 	titles: string[]
 	dropdowns?: Array<string[] | null>
+	captionHeight?: number
 }
 
 const props = defineProps<TableFeatureProps>()
@@ -32,7 +33,12 @@ const visibleRowCount = computed(() => {
 </script>
 
 <template>
-	<div class="table-feature" :style="{ '--table-row-count': String(visibleRowCount) }">
+	<div
+		class="table-feature"
+		:style="{
+			gridTemplateRows: `${props.captionHeight || 205}px repeat(${visibleRowCount}, minmax(122px, auto))`,
+		}"
+	>
 		<div class="table-feature__caption">Наименование:</div>
 		<div class="table-feature__wrap" v-for="(title, idx) in resolvedTitles" :key="idx">
 			<template v-if="title">
@@ -47,20 +53,24 @@ const visibleRowCount = computed(() => {
 
 <style lang="scss">
 .table-feature {
-	// flex: 1 1 auto;
 	display: grid;
-	// grid-template-columns: minmax(224px, 1fr);
 	width: 224px;
 	flex: 0 0 224px;
+	align-self: stretch;
+	height: 100%;
 	grid-template-rows:
 		var(--product-table-caption-height, 205px)
 		repeat(var(--table-row-count, 6), minmax(122px, auto));
 	&__caption,
 	&__wrap {
 		padding: 26px;
+		min-width: 0;
 		font-weight: 500;
 		font-size: 15px;
 		line-height: 100%;
+		white-space: normal;
+		overflow-wrap: anywhere;
+		word-break: break-word;
 		color: #2e4169;
 
 		border-top: 1px solid var(--graphic-main);

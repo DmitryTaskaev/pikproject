@@ -4,9 +4,13 @@ import type { ProductTableCardProps } from '../cards/ProductTableCard.vue'
 
 interface ProductTableSlideProps {
 	slide: ProductTableCardProps[]
+	captionHeight?: number
 }
 
 const props = defineProps<ProductTableSlideProps>()
+const emit = defineEmits<{
+	(e: 'caption-height-change', value: number): void
+}>()
 const rootRef = ref<HTMLElement | null>(null)
 const captionHeight = ref(205)
 
@@ -14,25 +18,34 @@ let resizeObserver: ResizeObserver | null = null
 
 const measureCaptionHeight = () => {
 	if (!rootRef.value) return
+	const sharedContainer =
+		rootRef.value.closest<HTMLElement>('.table-section__content--item')
+	const tableFeature = sharedContainer?.querySelector<HTMLElement>('.table-feature')
+	const sliderRoot = rootRef.value.closest<HTMLElement>('.product-table-slider')
 	const captions = Array.from(
-		rootRef.value.querySelectorAll<HTMLElement>('.product-table-card__caption'),
+		rootRef.value.querySelectorAll<HTMLElement>('.product-table-card__caption-inner'),
 	)
 	if (captions.length === 0) {
 		captionHeight.value = 205
-		rootRef.value.parentElement?.style.setProperty(
+		sharedContainer?.style.setProperty(
 			'--product-table-caption-height',
 			'205px',
 		)
+		tableFeature?.style.setProperty('--product-table-caption-height', '205px')
+		sliderRoot?.style.setProperty('--product-table-caption-height', '205px')
 		return
 	}
 	const maxHeight = captions.reduce((max, caption) => {
-		return Math.max(max, Math.ceil(caption.getBoundingClientRect().height))
+		return Math.max(max, Math.ceil(caption.scrollHeight + 1))
 	}, 205)
 	captionHeight.value = maxHeight
-	rootRef.value.parentElement?.style.setProperty(
+	emit('caption-height-change', maxHeight)
+	sharedContainer?.style.setProperty(
 		'--product-table-caption-height',
 		`${maxHeight}px`,
 	)
+	tableFeature?.style.setProperty('--product-table-caption-height', `${maxHeight}px`)
+	sliderRoot?.style.setProperty('--product-table-caption-height', `${maxHeight}px`)
 }
 
 const scheduleMeasure = () => {
@@ -72,14 +85,19 @@ onBeforeUnmount(() => {
 	<div
 		ref="rootRef"
 		class="product-table-slide"
-		:style="{ '--product-table-caption-height': `${captionHeight}px` }"
+		:style="{
+			'--product-table-caption-height': `${Math.max(captionHeight, props.captionHeight || 205)}px`,
+		}"
 	>
 		<div
 			v-for="(card, idx) in props.slide"
 			:key="idx"
 			class="product-table-slide__item"
 		>
-			<product-table-card v-bind="card" />
+			<product-table-card
+				v-bind="card"
+				:caption-height="Math.max(captionHeight, props.captionHeight || 205)"
+			/>
 		</div>
 	</div>
 </template>
@@ -87,10 +105,13 @@ onBeforeUnmount(() => {
 <style lang="scss">
 .product-table-slide {
 	display: flex;
+	min-width: 0;
 	&__item {
 		flex: 1 1 0;
 		min-width: 0;
 		.product-table-card {
+			width: 100%;
+			min-width: 0;
 			&__wrap,
 			&__caption {
 				border: 1px solid var(--graphic-main);

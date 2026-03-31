@@ -6,9 +6,13 @@ interface ProductTableSliderProps {
 	slides: ProductTableCardProps[][]
 	navPrevClass?: string
 	navNextClass?: string
+	captionHeight?: number
 }
 
 const props = defineProps<ProductTableSliderProps>()
+const emit = defineEmits<{
+	(e: 'caption-height-change', value: number): void
+}>()
 const instanceId = useId().replace(/:/g, '')
 const resolvedNavPrevClass =
 	props.navPrevClass || `product-table-slider__nav-prev-${instanceId}`
@@ -38,7 +42,11 @@ const resolvedNavNextClass =
 			v-for="(slide, index) in props.slides"
 			:key="index"
 		>
-			<ProductTableSlide :slide="slide" />
+			<ProductTableSlide
+				:slide="slide"
+				:caption-height="props.captionHeight"
+				@caption-height-change="emit('caption-height-change', $event)"
+			/>
 		</SwiperSlide>
 	</BaseSwiper>
 </template>

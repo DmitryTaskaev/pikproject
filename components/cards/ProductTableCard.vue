@@ -8,6 +8,7 @@ interface Caption {
 }
 export interface ProductTableCardProps {
 	caption: Caption
+	captionHeight?: number
 	rows?: string[][][]
 	rowLinks?: string[][][]
 	clickableRows?: number[]
@@ -80,22 +81,21 @@ const visibleRowCount = computed(() => {
 <template>
 	<div
 		class="product-table-card"
-		:style="{ '--table-row-count': String(visibleRowCount) }"
+		:style="{
+			gridTemplateRows: `${props.captionHeight || 205}px repeat(${visibleRowCount}, minmax(122px, auto))`,
+		}"
 	>
 		<div class="product-table-card__caption">
-			<Image class="product-table-card__caption--img" v-bind="props.caption.image" />
-			<Text
-				class="product-table-card__caption--title"
-				tag="a"
-				:href="props.caption.href"
-				weight="medium"
-				size="md"
-				line-height="md"
-				design="primary"
-			>
-				{{ props.caption.title }}
-			</Text>
-			<div class="product-table-card__caption--spacer" />
+			<div class="product-table-card__caption-inner">
+				<Image class="product-table-card__caption--img" v-bind="props.caption.image" />
+				<a
+					class="product-table-card__caption--title"
+					:href="props.caption.href"
+				>
+					{{ props.caption.title }}
+				</a>
+				<div class="product-table-card__caption--spacer" />
+			</div>
 		</div>
 		<div
 			class="product-table-card__wrap"
@@ -138,6 +138,7 @@ const visibleRowCount = computed(() => {
 		var(--product-table-caption-height, 205px)
 		repeat(var(--table-row-count, 6), minmax(122px, auto));
 	min-width: 0;
+	width: 100%;
 	&__caption,
 	&__wrap {
 		display: flex;
@@ -146,11 +147,20 @@ const visibleRowCount = computed(() => {
 		min-width: 0;
 	}
 	&__caption {
-		gap: 14px;
-		align-items: flex-start;
-		justify-content: flex-start;
 		width: 100%;
-		padding-bottom: 34px;
+		max-width: 100%;
+		padding-bottom: 0;
+		&-inner {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			gap: 14px;
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
+			padding-bottom: 34px;
+		}
 		&--img {
 			flex: 0 0 auto;
 			display: block;
@@ -170,9 +180,14 @@ const visibleRowCount = computed(() => {
 		}
 		&--title {
 			display: block;
+			align-self: stretch;
 			width: 100%;
 			max-width: 100%;
 			min-width: 0;
+			color: var(--primary-color);
+			font-weight: 500;
+			text-decoration: none;
+			white-space: normal;
 			overflow-wrap: anywhere;
 			word-break: break-word;
 			hyphens: auto;
@@ -188,21 +203,36 @@ const visibleRowCount = computed(() => {
 	&__wrap {
 		justify-content: center;
 		align-items: center;
+		width: 100%;
+		max-width: 100%;
 		font-size: 12px;
 		line-height: 125%;
 		text-align: center;
 		color: rgba(34, 34, 34, 0.7);
 		.product-table-card__wrap--line {
 			display: flex;
+			flex-wrap: wrap;
 			align-items: center;
 			justify-content: center;
 			gap: var(--space-xs);
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
 		}
 		.product-table-card__wrap--line_word {
+			display: inline;
+			max-width: 100%;
+			min-width: 0;
 			color: #222;
+			white-space: normal;
+			overflow-wrap: anywhere;
+			word-break: break-word;
 			a {
 				color: inherit;
 				text-decoration: inherit;
+				white-space: normal;
+				overflow-wrap: anywhere;
+				word-break: break-word;
 			}
 		}
 		.product-table-card__wrap--line_word-clickable {
