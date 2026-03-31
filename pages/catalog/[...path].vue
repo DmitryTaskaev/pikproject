@@ -724,6 +724,11 @@ const collectViewSections = (
 		if (resolveNodeType(node) === 'VIEW') {
 			result.push({ node, pathSegments: nextSegments })
 		}
+		if (node.CHILDREN && node.CHILDREN.length > 0) {
+			result.push(
+				...collectViewSections(node.CHILDREN as VariantSectionNode[], nextSegments),
+			)
+		}
 	}
 	return result
 }
@@ -1114,6 +1119,24 @@ const buildSectionValueLinks = (
 	return map
 }
 
+const buildViewSectionValueLinks = (
+	views: ViewSectionEntry[],
+	propCode: string,
+) => {
+	const map = new Map<string, string>()
+	for (const view of views) {
+		const viewItems = collectItemsWithCurrentPath(view.node, view.pathSegments).map(
+			entry => entry.item,
+		)
+		const value = collectPropertyValues(viewItems, propCode)[0]
+		if (!value) continue
+		if (!map.has(value)) {
+			map.set(value, withBasePath(`/catalog/${view.pathSegments.join('/')}`))
+		}
+	}
+	return map
+}
+
 const productTableSlides = computed(() => {
 	if (!isIndustryLike.value && !isView.value) return []
 	if (isDiametr.value) {
@@ -1198,13 +1221,25 @@ const productTableSlides = computed(() => {
 		.map(entry => {
 		const itemsList = entry.itemsWithPath.map(item => item.item)
 		const sectionInfo = entry.node.SECTION
+		const viewSections = collectViewSections(
+			(entry.node.CHILDREN || []) as VariantSectionNode[],
+			entry.pathSegments,
+		)
 		const rows = tableProperties.value.map(prop => {
 			const values = collectPropertyValues(itemsList, prop.code)
 			return formatRowValues(values)
 		})
 		const rowLinks = tableProperties.value.map(prop => {
 			if (!isClickableProperty(prop.code, prop.name)) return []
-			const valueLinks = buildValueLinks(entry.itemsWithPath, prop.code)
+			const valueLinks =
+				isIndustry.value && isDiametrProperty(prop.code, prop.name)
+					? (() => {
+							const links = buildViewSectionValueLinks(viewSections, prop.code)
+							return links.size > 0
+								? links
+								: buildSectionValueLinks(variantGroups.value, prop.code)
+						})()
+					: buildValueLinks(entry.itemsWithPath, prop.code)
 			const values = collectPropertyValues(itemsList, prop.code)
 			const lines = formatRowValues(values)
 			return lines.map(line =>

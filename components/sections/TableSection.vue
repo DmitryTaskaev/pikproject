@@ -12,6 +12,9 @@ const btnText = ref('Показать больше')
 const isBtnActive = ref(false)
 
 const { title, slides, titles, dropdowns } = defineProps<TableSectionProps>()
+const instanceId = useId().replace(/:/g, '')
+const navPrevClass = `table-section__nav-prev-${instanceId}`
+const navNextClass = `table-section__nav-next-${instanceId}`
 const resolvedTitles = computed(() => {
 	const list = titles || []
 	const base =
@@ -57,8 +60,22 @@ function handleBtnClick() {
 				<div class="table-section__content-wrap">
 					<div class="table-section__content">
 						<div class="table-section__content--item">
+							<div class="table-section__slider-controls">
+								<Button
+									:class="['table-section__slider-btn', navPrevClass]"
+									:icon="{ name: 'button-arrow', mode: 'prev' }"
+								/>
+								<Button
+									:class="['table-section__slider-btn', navNextClass]"
+									:icon="{ name: 'button-arrow', mode: 'next' }"
+								/>
+							</div>
 							<TableFeature :titles="resolvedTitles" :dropdowns="dropdowns" />
-							<product-table-slider :slides="slides" />
+							<product-table-slider
+								:slides="slides"
+								:nav-prev-class="navPrevClass"
+								:nav-next-class="navNextClass"
+							/>
 						</div>
 					</div>
 					<div class="table-section__content-btn">
@@ -191,6 +208,18 @@ function handleBtnClick() {
 				border-radius: 0;
 			}
 		}
+	}
+	&__slider-controls {
+		position: absolute;
+		top: 126px;
+		left: 26px;
+		z-index: 12;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+	&__slider-btn {
+		flex: 0 0 auto;
 	}
 	&_active {
 	}

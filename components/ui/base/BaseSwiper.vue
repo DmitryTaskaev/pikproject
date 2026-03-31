@@ -27,6 +27,7 @@ interface BaseSwiperProps {
 	controlsMode?: 'bottom'
 	isButtonsReverse?: boolean
 	speed?: number
+	hideBuiltInNavigation?: boolean
 }
 
 const props = withDefaults(defineProps<BaseSwiperProps>(), {
@@ -53,6 +54,7 @@ const props = withDefaults(defineProps<BaseSwiperProps>(), {
 	isButtonsReverse: false,
 	speed: 400,
 	controlsMode: undefined,
+	hideBuiltInNavigation: false,
 })
 
 const classes = computed(() => {
@@ -102,6 +104,7 @@ const navigationConfig = computed(() => {
 })
 
 const showNavigation = computed(() => {
+	if (props.hideBuiltInNavigation) return false
 	if (props.navigation && !computedPagination.value) return true
 	if (props.navigation && props.showNavigationWithPagination) return true
 	if (
@@ -114,6 +117,7 @@ const showNavigation = computed(() => {
 })
 
 const showPaginationControls = computed(() => {
+	if (props.hideBuiltInNavigation) return false
 	if (props.controlsMode === 'bottom') {
 		return true
 	}

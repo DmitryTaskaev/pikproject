@@ -52,7 +52,9 @@ const visibleRowCount = computed(() => {
 	// grid-template-columns: minmax(224px, 1fr);
 	width: 224px;
 	flex: 0 0 224px;
-	grid-template-rows: 205px repeat(var(--table-row-count, 6), minmax(122px, auto));
+	grid-template-rows:
+		var(--product-table-caption-height, 205px)
+		repeat(var(--table-row-count, 6), minmax(122px, auto));
 	&__caption,
 	&__wrap {
 		padding: 26px;

@@ -95,6 +95,7 @@ const visibleRowCount = computed(() => {
 			>
 				{{ props.caption.title }}
 			</Text>
+			<div class="product-table-card__caption--spacer" />
 		</div>
 		<div
 			class="product-table-card__wrap"
@@ -133,27 +134,55 @@ const visibleRowCount = computed(() => {
 .product-table-card {
 	display: grid;
 	grid-template-columns: minmax(224px, 1fr);
-	grid-template-rows: 205px repeat(var(--table-row-count, 6), minmax(122px, auto));
+	grid-template-rows:
+		var(--product-table-caption-height, 205px)
+		repeat(var(--table-row-count, 6), minmax(122px, auto));
+	min-width: 0;
 	&__caption,
 	&__wrap {
 		display: flex;
 		flex-direction: column;
 		padding: 26px;
+		min-width: 0;
 	}
 	&__caption {
 		gap: 14px;
 		align-items: flex-start;
+		justify-content: flex-start;
+		width: 100%;
+		padding-bottom: 34px;
 		&--img {
+			flex: 0 0 auto;
+			display: block;
 			width: 100%;
 			max-width: 171px;
 			height: 100px;
 			object-fit: contain;
 			object-position: center;
 			padding: 8px;
+			overflow: hidden;
 			border-radius: 12px;
 			background: #f4f7fc;
+			color: transparent;
+			font-size: 0;
+			line-height: 0;
+			text-indent: -9999px;
 		}
 		&--title {
+			display: block;
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
+			overflow-wrap: anywhere;
+			word-break: break-word;
+			hyphens: auto;
+			font-size: 14px;
+			line-height: 120%;
+		}
+		&--spacer {
+			flex: 0 0 18px;
+			height: 18px;
+			width: 100%;
 		}
 	}
 	&__wrap {
