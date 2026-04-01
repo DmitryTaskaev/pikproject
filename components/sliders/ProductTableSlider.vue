@@ -7,11 +7,13 @@ interface ProductTableSliderProps {
 	navPrevClass?: string
 	navNextClass?: string
 	captionHeight?: number
+	rowHeights?: number[]
 }
 
 const props = defineProps<ProductTableSliderProps>()
 const emit = defineEmits<{
 	(e: 'caption-height-change', value: number): void
+	(e: 'row-heights-change', value: number[]): void
 }>()
 const instanceId = useId().replace(/:/g, '')
 const resolvedNavPrevClass =
@@ -45,7 +47,9 @@ const resolvedNavNextClass =
 			<ProductTableSlide
 				:slide="slide"
 				:caption-height="props.captionHeight"
+				:row-heights="props.rowHeights"
 				@caption-height-change="emit('caption-height-change', $event)"
+				@row-heights-change="emit('row-heights-change', $event)"
 			/>
 		</SwiperSlide>
 	</BaseSwiper>

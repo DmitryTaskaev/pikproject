@@ -5,11 +5,13 @@ import type { ProductTableCardProps } from '../cards/ProductTableCard.vue'
 interface ProductTableSlideProps {
 	slide: ProductTableCardProps[]
 	captionHeight?: number
+	rowHeights?: number[]
 }
 
 const props = defineProps<ProductTableSlideProps>()
 const emit = defineEmits<{
 	(e: 'caption-height-change', value: number): void
+	(e: 'row-heights-change', value: number[]): void
 }>()
 const rootRef = ref<HTMLElement | null>(null)
 const captionHeight = ref(205)
@@ -20,32 +22,41 @@ const measureCaptionHeight = () => {
 	if (!rootRef.value) return
 	const sharedContainer =
 		rootRef.value.closest<HTMLElement>('.table-section__content--item')
-	const tableFeature = sharedContainer?.querySelector<HTMLElement>('.table-feature')
-	const sliderRoot = rootRef.value.closest<HTMLElement>('.product-table-slider')
 	const captions = Array.from(
 		rootRef.value.querySelectorAll<HTMLElement>('.product-table-card__caption-inner'),
 	)
+	const tableCaption = sharedContainer?.querySelector<HTMLElement>(
+		'.table-feature__caption',
+	)
+	const leftRows = Array.from(
+		sharedContainer?.querySelectorAll<HTMLElement>('.table-feature__wrap') || [],
+	)
+	const cards = Array.from(
+		rootRef.value.querySelectorAll<HTMLElement>('.product-table-card'),
+	)
+
 	if (captions.length === 0) {
 		captionHeight.value = 205
-		sharedContainer?.style.setProperty(
-			'--product-table-caption-height',
-			'205px',
-		)
-		tableFeature?.style.setProperty('--product-table-caption-height', '205px')
-		sliderRoot?.style.setProperty('--product-table-caption-height', '205px')
+		emit('caption-height-change', 205)
+		emit('row-heights-change', Array.from({ length: 6 }, () => 122))
 		return
 	}
 	const maxHeight = captions.reduce((max, caption) => {
 		return Math.max(max, Math.ceil(caption.scrollHeight + 1))
-	}, 205)
+	}, tableCaption ? Math.ceil(tableCaption.getBoundingClientRect().height) : 205)
 	captionHeight.value = maxHeight
 	emit('caption-height-change', maxHeight)
-	sharedContainer?.style.setProperty(
-		'--product-table-caption-height',
-		`${maxHeight}px`,
-	)
-	tableFeature?.style.setProperty('--product-table-caption-height', `${maxHeight}px`)
-	sliderRoot?.style.setProperty('--product-table-caption-height', `${maxHeight}px`)
+
+	const nextRowHeights = Array.from({ length: 6 }, (_, rowIndex) => {
+		const leftHeight = Math.ceil(leftRows[rowIndex]?.getBoundingClientRect().height || 0)
+		const maxCardHeight = cards.reduce((max, card) => {
+			const row = card.querySelectorAll<HTMLElement>('.product-table-card__wrap')[rowIndex]
+			if (!row) return max
+			return Math.max(max, Math.ceil(row.getBoundingClientRect().height))
+		}, 0)
+		return Math.max(122, leftHeight, maxCardHeight)
+	})
+	emit('row-heights-change', nextRowHeights)
 }
 
 const scheduleMeasure = () => {
@@ -97,6 +108,7 @@ onBeforeUnmount(() => {
 			<product-table-card
 				v-bind="card"
 				:caption-height="Math.max(captionHeight, props.captionHeight || 205)"
+				:row-heights="props.rowHeights"
 			/>
 		</div>
 	</div>

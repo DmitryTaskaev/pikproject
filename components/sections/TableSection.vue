@@ -11,6 +11,8 @@ interface TableSectionProps {
 const btnText = ref('Показать больше')
 const isBtnActive = ref(false)
 const captionHeight = ref(205)
+const rowHeights = ref<number[]>(Array.from({ length: 6 }, () => 122))
+const isTableReady = ref(false)
 
 const { title, slides, titles, dropdowns } = defineProps<TableSectionProps>()
 const instanceId = useId().replace(/:/g, '')
@@ -44,7 +46,13 @@ function handleBtnClick() {
 }
 
 function handleCaptionHeightChange(value: number) {
-	captionHeight.value = Math.max(captionHeight.value, value, 205)
+	captionHeight.value = Math.max(value, 205)
+	isTableReady.value = true
+}
+
+function handleRowHeightsChange(value: number[]) {
+	rowHeights.value = value.length > 0 ? value.map(height => Math.max(height, 122)) : Array.from({ length: 6 }, () => 122)
+	isTableReady.value = true
 }
 </script>
 
@@ -64,30 +72,43 @@ function handleCaptionHeightChange(value: number) {
 				</div>
 				<div class="table-section__content-wrap">
 					<div class="table-section__content">
-						<div class="table-section__content--item">
-							<div class="table-section__slider-controls">
-								<Button
-									:class="['table-section__slider-btn', navPrevClass]"
-									:icon="{ name: 'button-arrow', mode: 'prev' }"
+						<ClientOnly>
+							<div
+								class="table-section__content--item"
+								:class="{
+									'table-section__content--item_hidden': !isTableReady,
+								}"
+							>
+								<div class="table-section__slider-controls">
+									<Button
+										:class="['table-section__slider-btn', navPrevClass]"
+										:icon="{ name: 'button-arrow', mode: 'prev' }"
+									/>
+									<Button
+										:class="['table-section__slider-btn', navNextClass]"
+										:icon="{ name: 'button-arrow', mode: 'next' }"
+									/>
+								</div>
+								<TableFeature
+									:titles="resolvedTitles"
+									:dropdowns="dropdowns"
+									:caption-height="captionHeight"
+									:row-heights="rowHeights"
 								/>
-								<Button
-									:class="['table-section__slider-btn', navNextClass]"
-									:icon="{ name: 'button-arrow', mode: 'next' }"
+								<product-table-slider
+									:slides="slides"
+									:nav-prev-class="navPrevClass"
+									:nav-next-class="navNextClass"
+									:caption-height="captionHeight"
+									:row-heights="rowHeights"
+									@caption-height-change="handleCaptionHeightChange"
+									@row-heights-change="handleRowHeightsChange"
 								/>
 							</div>
-							<TableFeature
-								:titles="resolvedTitles"
-								:dropdowns="dropdowns"
-								:caption-height="captionHeight"
-							/>
-							<product-table-slider
-								:slides="slides"
-								:nav-prev-class="navPrevClass"
-								:nav-next-class="navNextClass"
-								:caption-height="captionHeight"
-								@caption-height-change="handleCaptionHeightChange"
-							/>
-						</div>
+							<template #fallback>
+								<div class="table-section__content--item table-section__content--item_loading" />
+							</template>
+						</ClientOnly>
 					</div>
 					<div class="table-section__content-btn">
 						<div
@@ -217,6 +238,12 @@ function handleCaptionHeightChange(value: number) {
 				width: 100%;
 				border: none;
 				border-radius: 0;
+			}
+			&_hidden {
+				visibility: hidden;
+			}
+			&_loading {
+				min-height: 940px;
 			}
 		}
 	}

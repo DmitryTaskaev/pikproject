@@ -9,6 +9,7 @@ interface Caption {
 export interface ProductTableCardProps {
 	caption: Caption
 	captionHeight?: number
+	rowHeights?: number[]
 	rows?: string[][][]
 	rowLinks?: string[][][]
 	clickableRows?: number[]
@@ -69,12 +70,18 @@ const resolvedRowLinks = computed(() => {
 })
 
 const visibleRowCount = computed(() => {
-	return Math.max(
-		1,
-		resolvedRows.value.filter(row => {
-			return row.some(line => line.some(Boolean))
-		}).length,
-	)
+	return Math.max(1, resolvedRows.value.length)
+})
+
+const resolvedGridTemplateRows = computed(() => {
+	const caption = props.captionHeight || 205
+	const rowHeights =
+		props.rowHeights && props.rowHeights.length > 0
+			? props.rowHeights.slice(0, visibleRowCount.value)
+			: Array.from({ length: visibleRowCount.value }, () => 122)
+	return `${caption}px ${rowHeights
+		.map(height => `minmax(${Math.max(height, 122)}px, auto)`)
+		.join(' ')}`
 })
 </script>
 
@@ -82,7 +89,7 @@ const visibleRowCount = computed(() => {
 	<div
 		class="product-table-card"
 		:style="{
-			gridTemplateRows: `${props.captionHeight || 205}px repeat(${visibleRowCount}, minmax(122px, auto))`,
+			gridTemplateRows: resolvedGridTemplateRows,
 		}"
 	>
 		<div class="product-table-card__caption">
