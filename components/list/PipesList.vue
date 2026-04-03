@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { SwiperSlide } from 'swiper/vue'
+import { EffectFade, Navigation } from 'swiper/modules'
+import type { Swiper as SwiperInstance } from 'swiper/types'
+import { Swiper, SwiperSlide } from 'swiper/vue'
 import type { PipeCardProps } from '../cards/PipeCard.vue'
 
 interface PipesListProps {
@@ -10,10 +12,54 @@ interface PipesListProps {
 const props = defineProps<PipesListProps>()
 
 const isSlider = props.slides ? true : false
-const instanceId = useId().replace(/:/g, '')
-const paginationClass = `pipes-list__pagination-${instanceId}`
-const navPrevClass = `pipes-list__nav-prev-${instanceId}`
-const navNextClass = `pipes-list__nav-next-${instanceId}`
+const currentPage = ref(1)
+const swiperRef = ref<SwiperInstance | null>(null)
+
+const totalPages = computed(() => props.slides?.length || 1)
+
+const paginationItems = computed<(number | string)[]>(() => {
+	const total = totalPages.value
+	const current = currentPage.value
+
+	if (total <= 7) {
+		return Array.from({ length: total }, (_, idx) => idx + 1)
+	}
+
+	const items: (number | string)[] = [1]
+	const windowStart = Math.max(2, current - 1)
+	const windowEnd = Math.min(total - 1, current + 1)
+
+	if (windowStart > 2) items.push('...')
+	for (let page = windowStart; page <= windowEnd; page += 1) {
+		items.push(page)
+	}
+	if (windowEnd < total - 1) items.push('...')
+	items.push(total)
+
+	return items
+})
+
+const setSwiper = (swiper: SwiperInstance) => {
+	swiperRef.value = swiper
+	currentPage.value = swiper.realIndex + 1
+}
+
+const handleSlideChange = (swiper: SwiperInstance) => {
+	currentPage.value = swiper.realIndex + 1
+}
+
+const goToPrev = () => {
+	swiperRef.value?.slidePrev()
+}
+
+const goToNext = () => {
+	swiperRef.value?.slideNext()
+}
+
+const goToPage = (page: number | string) => {
+	if (typeof page !== 'number') return
+	swiperRef.value?.slideToLoop(page - 1)
+}
 </script>
 
 <template>
@@ -35,28 +81,17 @@ const navNextClass = `pipes-list__nav-next-${instanceId}`
 					<div />
 				</div>
 				<div v-if="isSlider" class="pipes-list__slider">
-					<BaseSwiper
+					<Swiper
+						:modules="[Navigation, EffectFade]"
 						:space-between="0"
 						:slides-per-view="1"
-						:navigation="{
-							nextEl: `.${navNextClass}`,
-							prevEl: `.${navPrevClass}`,
-						}"
-						:pagination="{
-							el: `.${paginationClass}`,
-							clickable: true,
-							renderBullet: (index: number, className: string) => {
-								return `<span class='${className}'>${index + 1}</span>`
-							},
-						}"
-						:show-navigation-with-pagination="false"
 						:loop="true"
 						:effect="'fade'"
 						:fade-effect="{ crossFade: true }"
 						:no-swiping="true"
 						:no-swiping-class="'swiper-no-swiping'"
-						mode="overflow-controls"
-						modificator="pipes"
+						@swiper="setSwiper"
+						@slide-change="handleSlideChange"
 					>
 						<SwiperSlide
 							class="swiper-no-swiping"
@@ -71,7 +106,7 @@ const navNextClass = `pipes-list__nav-next-${instanceId}`
 								/>
 							</div>
 						</SwiperSlide>
-					</BaseSwiper>
+					</Swiper>
 				</div>
 				<div v-else class="pipes-list__slide">
 					<PipeCard
@@ -89,13 +124,30 @@ const navNextClass = `pipes-list__nav-next-${instanceId}`
 			class="pipes-list__controls"
 		>
 			<Button
-				:class="['pipes-list__nav-btn', navPrevClass]"
+				class="pipes-list__nav-btn"
 				:icon="{ name: 'button-arrow', mode: 'prev' }"
+				@click="goToPrev"
 			/>
-			<div :class="paginationClass" />
+			<div class="pipes-list__pagination">
+				<button
+					v-for="(item, index) in paginationItems"
+					:key="`${item}-${index}`"
+					class="pipes-list__pagination-item"
+					:class="{
+						'pipes-list__pagination-item_active': item === currentPage,
+						'pipes-list__pagination-item_ellipsis': item === '...',
+					}"
+					:type="'button'"
+					:disabled="item === '...'"
+					@click="goToPage(item)"
+				>
+					{{ item }}
+				</button>
+			</div>
 			<Button
-				:class="['pipes-list__nav-btn', navNextClass]"
+				class="pipes-list__nav-btn"
 				:icon="{ name: 'button-arrow', mode: 'next' }"
+				@click="goToNext"
 			/>
 		</div>
 	</div>
@@ -207,11 +259,34 @@ const navNextClass = `pipes-list__nav-next-${instanceId}`
 	}
 
 	&__pagination {
-		gap: 10px;
+		min-width: 88px;
 		margin: 0 auto;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		gap: 6px;
+		flex-wrap: wrap;
+		&-item {
+			border: none;
+			background: transparent;
+			padding: 0;
+			min-width: 20px;
+			font-size: 16px;
+			line-height: 1;
+			font-weight: 500;
+			color: var(--primary-color);
+			cursor: pointer;
+			&_active {
+				text-decoration: underline;
+				text-underline-offset: 3px;
+			}
+			&_ellipsis {
+				cursor: default;
+			}
+			&:disabled {
+				opacity: 1;
+			}
+		}
 	}
 }
 </style>
