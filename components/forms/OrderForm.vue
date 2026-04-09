@@ -1,14 +1,114 @@
 <script setup lang="ts">
 interface OrderFormProps {
 	prefix?: string
+	positionFrom?: string
 }
 
 const props = withDefaults(defineProps<OrderFormProps>(), {
 	prefix: 'consultation',
+	positionFrom: '',
 })
 const { t } = useSiteI18n()
+const { language } = useSiteLanguage()
+const route = useRoute()
+const isSubmitting = ref(false)
+const submitSuccess = ref(false)
+const submitError = ref('')
+
+const isEmailRequired = computed(() => props.prefix !== 'hero')
+
+const positionFrom = computed(() => {
+	if (props.positionFrom) return props.positionFrom
+
+	const map: Record<string, { ru: string; en: string }> = {
+		hero: {
+			ru: 'Форма в hero-блоке',
+			en: 'Hero form',
+		},
+		consultation: {
+			ru: 'Блок консультации',
+			en: 'Consultation block',
+		},
+		'order-modal': {
+			ru: 'Модальное окно справа',
+			en: 'Right modal window',
+		},
+		'documents-modal': {
+			ru: 'Заявка на скачивание документов',
+			en: 'Documents download form',
+		},
+	}
+
+	const entry = map[props.prefix] || map.consultation
+	return language.value === 'en' ? entry.en : entry.ru
+})
 
 const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
+
+const getPageUrl = () => {
+	if (import.meta.client) return window.location.href
+	return route.fullPath
+}
+
+const getStatusText = () => {
+	if (submitError.value) return submitError.value
+	if (!submitSuccess.value) return ''
+	return language.value === 'en'
+		? 'Form submitted successfully.'
+		: 'Форма успешно отправлена.'
+}
+
+const handleSubmit = async (event: Event) => {
+	event.preventDefault()
+	submitError.value = ''
+	submitSuccess.value = false
+
+	const form = event.currentTarget as HTMLFormElement | null
+	if (!form) return
+
+	const formData = new FormData(form)
+	const name = String(formData.get(getFieldId('name')) || '').trim()
+	const phone = String(formData.get(getFieldId('phone')) || '').trim()
+	const email = String(formData.get(getFieldId('email')) || '').trim()
+
+	if (!name || !phone || (isEmailRequired.value && !email)) {
+		submitError.value =
+			language.value === 'en'
+				? 'Please fill in the required fields.'
+				: 'Заполните обязательные поля.'
+		return
+	}
+
+	isSubmitting.value = true
+
+	try {
+		await $fetch('/api/sendForm', {
+			method: 'POST',
+			body: {
+				lang: language.value,
+				NAME: name,
+				PHONE: phone,
+				EMAIL: email,
+				PAGE_URL: getPageUrl(),
+				ACTIVE: 'Y',
+				POSITION_FROM: positionFrom.value,
+			},
+		})
+
+		submitSuccess.value = true
+		form.reset()
+	}
+	catch (error) {
+		console.error('sendForm failed', error)
+		submitError.value =
+			language.value === 'en'
+				? 'Failed to submit the form. Please try again.'
+				: 'Не удалось отправить форму. Попробуйте ещё раз.'
+	}
+	finally {
+		isSubmitting.value = false
+	}
+}
 </script>
 
 <template>
@@ -17,6 +117,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 		class="order-form"
 		action="#"
 		method="post"
+		@submit="handleSubmit"
 	>
 		<div class="order-form__top">
 			<label
@@ -72,7 +173,7 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 						class="order-form__input"
 						:name="getFieldId('email')"
 						type="email"
-						required
+						:required="isEmailRequired"
 					/>
 				</label>
 			</div>
@@ -129,12 +230,36 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 				</label>
 			</div>
 			<div class="order-form__bottom-wrap">
-				<Button
-					class="order-form__submit"
+				<button
+					class="order-form__submit btn btn_xl"
 					type="submit"
-					:text="String(t('form_submit'))"
-					size="xl"
-				></Button>
+					:disabled="isSubmitting"
+				>
+					<Text
+						class="btn__text"
+						tag="span"
+						size="sm"
+						line-height="xl"
+						design="accent"
+					>
+						{{
+							isSubmitting
+								? language === 'en'
+									? 'Sending...'
+									: 'Отправка...'
+								: String(t('form_submit'))
+						}}
+					</Text>
+				</button>
+
+				<Text
+					v-if="getStatusText()"
+					class="order-form__status"
+					size="xs"
+					line-height="xs"
+				>
+					{{ getStatusText() }}
+				</Text>
 
 				<span class="order-form__public-offer">
 					<Text
@@ -289,6 +414,13 @@ const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
 	}
 	&__submit {
 		margin-bottom: var(--space-xs);
+		border: none;
+	}
+	&__status {
+		display: block;
+		margin-bottom: var(--space-xs);
+		text-align: center;
+		color: var(--primary-color);
 	}
 }
 </style>
