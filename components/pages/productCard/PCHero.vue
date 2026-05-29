@@ -48,6 +48,37 @@ const resolvedApplication = computed(
 		props.application ||
 		'Применяются в системах водоснабжения и водоотведения, а также для технических трубопроводов с повышенными требованиями к прочности и визуальному контролю протока.',
 )
+const decodeHtmlEntities = (value: string) => {
+	let decoded = value
+	for (let i = 0; i < 3; i++) {
+		const next = decoded
+			.replace(/&#40;/g, '(')
+			.replace(/&#41;/g, ')')
+			.replace(/&quot;/g, '"')
+			.replace(/&#39;/g, "'")
+			.replace(/&nbsp;/g, ' ')
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>')
+			.replace(/&amp;/g, '&')
+		if (next === decoded) break
+		decoded = next
+	}
+	return decoded
+}
+const readableApplication = computed(() => {
+	return decodeHtmlEntities(resolvedApplication.value)
+		.replace(/<br\s*\/?>/gi, '\n')
+		.replace(/<\/(p|div|h[1-6])\s*>/gi, '\n\n')
+		.replace(/<li[^>]*>/gi, '\n- ')
+		.replace(/<\/li>/gi, '')
+		.replace(/<\/(ul|ol)\s*>/gi, '\n')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/[ \t]+\n/g, '\n')
+		.replace(/\n[ \t]+/g, '\n')
+		.replace(/[ \t]{2,}/g, ' ')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim()
+})
 const resolvedDetails = computed(() => {
 	return props.details !== undefined ? props.details : fallbackDetails
 })
@@ -77,9 +108,11 @@ const resolvedSlides = computed(() => props.slides || [])
 							>
 								Область применения
 							</Text>
-							<Text class="p-c-hero__content--desc">
-								{{ resolvedApplication }}
-							</Text>
+							<div
+								class="p-c-hero__content--desc text text_size-lg text_weight-regular text_line-height-lg text_letter-spacing-sm"
+							>
+								{{ readableApplication }}
+							</div>
 						</div>
 						<Button
 							class="p-c-hero__content--btn"
@@ -207,6 +240,7 @@ const resolvedSlides = computed(() => props.slides || [])
 		}
 		&--desc {
 			font-size: 14px;
+			white-space: pre-line;
 			@include ultrahd {
 				font-size: 15px;
 			}

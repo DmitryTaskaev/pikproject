@@ -59,7 +59,7 @@ const tableSlides = computed(() => {
 </script>
 
 <template>
-	<main class="main">
+	<main class="main catalog-page">
 		<Breadcrumbs :list="breadcrumbsList" />
 		<ProductCatalog />
 		<CPipeCatalog />

@@ -26,7 +26,7 @@ const findByPath = (
 	return findByPath(match.CHILDREN || [], rest)
 }
 
-export default defineEventHandler(async event => {
+export default defineCachedEventHandler(async event => {
 	const config = useRuntimeConfig()
 	const apiBase = getApiBase(event)
 	const headers: Record<string, string> = {}
@@ -113,4 +113,26 @@ export default defineEventHandler(async event => {
 	}
 
 	return await $fetch(`${apiBase}/products`, { headers })
+}, {
+	maxAge: 900,
+	swr: true,
+	getKey: event => {
+		const query = getQuery(event) as {
+			section_id?: string
+			code?: string
+			path?: string
+			lang?: string
+		}
+		const apiBase = getApiBase(event)
+		return [
+			'products',
+			apiBase,
+			query.section_id || '',
+			query.code || '',
+			query.path || '',
+			query.lang || '',
+		]
+			.map(part => encodeURIComponent(String(part)))
+			.join(':')
+	},
 })

@@ -18,6 +18,10 @@ const { title, slides, titles, dropdowns } = defineProps<TableSectionProps>()
 const instanceId = useId().replace(/:/g, '')
 const navPrevClass = `table-section__nav-prev-${instanceId}`
 const navNextClass = `table-section__nav-next-${instanceId}`
+const tableItemsCount = computed(() =>
+	slides.reduce((count, slide) => count + slide.length, 0),
+)
+const shouldShowSliderControls = computed(() => tableItemsCount.value > 4)
 const resolvedTitles = computed(() => {
 	const list = titles || []
 	const base =
@@ -79,7 +83,10 @@ function handleRowHeightsChange(value: number[]) {
 									'table-section__content--item_hidden': !isTableReady,
 								}"
 							>
-								<div class="table-section__slider-controls">
+								<div
+									v-if="shouldShowSliderControls"
+									class="table-section__slider-controls"
+								>
 									<Button
 										:class="['table-section__slider-btn', navPrevClass]"
 										:icon="{ name: 'button-arrow', mode: 'prev' }"

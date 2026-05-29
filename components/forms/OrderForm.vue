@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<OrderFormProps>(), {
 	prefix: 'consultation',
 	positionFrom: '',
 })
+const config = useRuntimeConfig()
 const { t } = useSiteI18n()
 const { language } = useSiteLanguage()
 const route = useRoute()
@@ -44,6 +45,14 @@ const positionFrom = computed(() => {
 })
 
 const getFieldId = (fieldName: string) => `${props.prefix}-${fieldName}`
+
+const withBaseUrl = (path: string) => {
+	const base = config.app.baseURL.replace(/\/$/, '')
+	return `${base}${path}`
+}
+
+const privacyPolicyHref = computed(() => withBaseUrl('/public-offer'))
+const personalDataPolicyHref = computed(() => withBaseUrl('/public-offer'))
 
 const getPageUrl = () => {
 	if (import.meta.client) return window.location.href
@@ -198,7 +207,7 @@ const handleSubmit = async (event: Event) => {
 							class="order-form__checkbox--link"
 							size="xs"
 							tag="a"
-							href="#"
+							:href="personalDataPolicyHref"
 							line-height="xs"
 							>{{ String(t('form_agreement_link')) }}</Text
 						>.
@@ -261,21 +270,37 @@ const handleSubmit = async (event: Event) => {
 					{{ getStatusText() }}
 				</Text>
 
-				<span class="order-form__public-offer">
+				<span class="order-form__policy-note">
 					<Text
-						class="order-form__public-offer--item"
+						class="order-form__policy-note--item"
 						tag="span"
 						size="xs"
 						line-height="xs"
-						>{{ String(t('form_public_offer_prefix')) }}
+						>{{ String(t('form_order_policy_before_link')) }}
 					</Text>
 					<Text
-						class="order-form__public-offer--link"
+						class="order-form__policy-note--link"
 						tag="a"
-						href="/piktube/public-offer"
+						:href="privacyPolicyHref"
 						size="xs"
 						line-height="xs"
-						>{{ String(t('form_public_offer_link')) }}</Text
+						>{{ String(t('form_order_privacy_link')) }}</Text
+					>
+					<Text
+						class="order-form__policy-note--item"
+						tag="span"
+						size="xs"
+						line-height="xs"
+					>
+						{{ String(t('form_order_policy_middle')) }}
+					</Text>
+					<Text
+						class="order-form__policy-note--link"
+						tag="a"
+						:href="personalDataPolicyHref"
+						size="xs"
+						line-height="xs"
+						>{{ String(t('form_order_personal_data_link')) }}</Text
 					>
 				</span>
 			</div>
@@ -396,7 +421,7 @@ const handleSubmit = async (event: Event) => {
 		flex-direction: column;
 		justify-content: center;
 	}
-	&__public-offer {
+	&__policy-note {
 		// margin: 0 auto;
 		text-align: center;
 		&--item,

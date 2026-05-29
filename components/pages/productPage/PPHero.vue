@@ -57,15 +57,6 @@ const resolvedDescriptions = computed(() => {
 const resolvedMeasures = computed(() => {
 	return props.measures !== undefined ? props.measures : fallbackMeasures
 })
-
-const imageStyle = computed(() => {
-	if (!props.imageSrc) return undefined
-	return {
-		backgroundImage: `url(${props.imageSrc})`,
-		backgroundSize: 'cover',
-		backgroundPosition: 'center',
-	}
-})
 </script>
 
 <template>
@@ -82,7 +73,14 @@ const imageStyle = computed(() => {
 						</template>
 					</custom-title>
 				</div>
-				<div class="p-p-hero__image" :style="imageStyle"></div>
+				<div class="p-p-hero__image">
+					<img
+						v-if="props.imageSrc"
+						class="p-p-hero__image--item"
+						:src="props.imageSrc"
+						:alt="resolvedTitleLines.join(' ')"
+					/>
+				</div>
 				<div class="p-p-hero__desc">
 					<div
 						v-for="(item, index) in resolvedDescriptions"
@@ -141,12 +139,31 @@ const imageStyle = computed(() => {
 		}
 	}
 	&__image {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		aspect-ratio: 1 / 1;
+		padding: 28px;
 		border-radius: 12px;
 		background: var(--primary-bg);
+		overflow: hidden;
 		@include tablet {
 			grid-row: 1/4;
 			grid-column: 2/3;
+			padding: 40px;
+		}
+		@include ultrahd {
+			padding: 64px;
+		}
+
+		&--item {
+			display: block;
+			width: auto;
+			height: auto;
+			max-width: 78%;
+			max-height: 78%;
+			object-fit: contain;
+			object-position: center;
 		}
 	}
 	&__desc {
@@ -159,6 +176,27 @@ const imageStyle = computed(() => {
 			margin-bottom: var(--space-xl);
 		}
 		&--item {
+			p,
+			ul,
+			ol {
+				margin: 0;
+			}
+
+			p + p,
+			p + ul,
+			ul + p,
+			ol + p {
+				margin-top: var(--space-sm);
+			}
+
+			ul,
+			ol {
+				padding-left: 20px;
+			}
+
+			li + li {
+				margin-top: 4px;
+			}
 		}
 	}
 	&__measures {

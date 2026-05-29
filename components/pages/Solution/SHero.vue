@@ -21,13 +21,6 @@ const resolvedDescriptions = computed(() => {
 	return props.descriptions !== undefined ? props.descriptions : fallbackDescList
 })
 
-const normalizeNbsp = (s: string) => s.replaceAll('&nbsp;', '\u00A0')
-const splitByBr = (s: string) => normalizeNbsp(s).split(/<br\s*\/?\s*>/i)
-
-const descLines = computed(() => resolvedDescriptions.value.map(t => splitByBr(t)))
-const imageStyle = computed(() => {
-	return props.imageSrc ? { backgroundImage: `url('${props.imageSrc}')` } : {}
-})
 </script>
 
 <template>
@@ -45,16 +38,21 @@ const imageStyle = computed(() => {
 						</template></custom-title
 					>
 				</div>
-				<div class="s-hero__image" :style="imageStyle"></div>
+				<div class="s-hero__image">
+					<img
+						v-if="props.imageSrc"
+						class="s-hero__image--item"
+						:src="props.imageSrc"
+						:alt="resolvedTitleLines.join(' ')"
+					/>
+				</div>
 				<div class="s-hero__desc">
-					<template v-for="(lines, index) in descLines" :key="index">
-						<Text class="s-hero__desc--item">
-							<template v-for="(line, i) in lines" :key="`d-${index}-${i}`">
-								<span>{{ line }}</span>
-								<br v-if="i < lines.length - 1" />
-							</template>
-						</Text>
-					</template>
+					<div
+						v-for="(item, index) in resolvedDescriptions"
+						:key="index"
+						class="s-hero__desc--item text text_size-lg text_weight-regular text_line-height-lg text_letter-spacing-sm"
+						v-html="item"
+					/>
 				</div>
 			</div>
 		</div>
@@ -93,16 +91,32 @@ const imageStyle = computed(() => {
 		}
 	}
 	&__image {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		aspect-ratio: 1 / 1;
+		padding: 28px;
 		border-radius: 12px;
 		background: var(--primary-bg);
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
+		overflow: hidden;
 		@include tablet {
 			grid-column: 2/3;
 			grid-row: 1 / -1;
 			align-self: start;
+			padding: 40px;
+		}
+		@include ultrahd {
+			padding: 64px;
+		}
+
+		&--item {
+			display: block;
+			width: auto;
+			height: auto;
+			max-width: 78%;
+			max-height: 78%;
+			object-fit: contain;
+			object-position: center;
 		}
 	}
 	&__desc {
@@ -112,6 +126,30 @@ const imageStyle = computed(() => {
 		@include tablet {
 			grid-column: 1/2;
 			grid-row: 2/3;
+		}
+
+		&--item {
+			p,
+			ul,
+			ol {
+				margin: 0;
+			}
+
+			p + p,
+			p + ul,
+			ul + p,
+			ol + p {
+				margin-top: var(--space-sm);
+			}
+
+			ul,
+			ol {
+				padding-left: 20px;
+			}
+
+			li + li {
+				margin-top: 4px;
+			}
 		}
 	}
 	&__desc {

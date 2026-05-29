@@ -615,7 +615,13 @@ const slides = computed(() => {
 const heroTitle = computed(() => section.value?.NAME || '')
 const normalizeSectionDescription = (value?: string) => {
 	if (!value) return ''
-	return decodeHtml(value).trim()
+	let decoded = value
+	for (let i = 0; i < 3; i++) {
+		const next = decodeHtml(decoded).replace(/&nbsp;/g, ' ')
+		if (next === decoded) break
+		decoded = next
+	}
+	return decoded.trim()
 }
 
 const heroDescriptions = computed(() => {
@@ -1418,7 +1424,7 @@ const servicesLinkHref = computed(() => {
 </script>
 
 <template>
-	<main class="main">
+	<main class="main catalog-page">
 		<Breadcrumbs :list="breadcrumbsList" />
 		<template v-if="isItemPage">
 			<PCHero

@@ -101,10 +101,17 @@ export const findSectionByPath = (
 
 export const decodeHtml = (value: string) => {
 	return value
+		.replace(/&#x([0-9a-f]+);/gi, (_, code) =>
+			String.fromCodePoint(Number.parseInt(code, 16)),
+		)
+		.replace(/&#(\d+);/g, (_, code) =>
+			String.fromCodePoint(Number.parseInt(code, 10)),
+		)
 		.replace(/&#40;/g, '(')
 		.replace(/&#41;/g, ')')
 		.replace(/&quot;/g, '"')
 		.replace(/&#39;/g, "'")
+		.replace(/&nbsp;/g, ' ')
 		.replace(/&lt;/g, '<')
 		.replace(/&gt;/g, '>')
 		.replace(/&amp;/g, '&')

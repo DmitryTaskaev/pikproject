@@ -265,6 +265,22 @@ export const siteTranslations = {
 		ru: 'публичной оферты.',
 		en: 'public offer.',
 	},
+	form_order_policy_before_link: {
+		ru: 'Нажимая на кнопку «Оформить заказ», вы соглашаетесь с ',
+		en: 'By clicking the Place order button, you agree to the ',
+	},
+	form_order_privacy_link: {
+		ru: 'политикой конфиденциальности',
+		en: 'privacy policy',
+	},
+	form_order_policy_middle: {
+		ru: ' и с ',
+		en: ' and the ',
+	},
+	form_order_personal_data_link: {
+		ru: 'политикой обработки персональных данных',
+		en: 'personal data processing policy',
+	},
 	services_block_title: {
 		ru: 'Услуги',
 		en: 'Services',

@@ -81,6 +81,16 @@ const slides = computed(() => {
 .p-c-hero-slider {
 	position: relative;
 
+	.swiper,
+	.swiper-wrapper,
+	.swiper-slide {
+		height: auto;
+	}
+
+	.swiper-slide {
+		display: flex;
+	}
+
 	&-pagination {
 		position: absolute;
 		left: 12px !important;

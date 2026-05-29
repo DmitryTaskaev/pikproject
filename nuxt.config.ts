@@ -19,6 +19,9 @@ export default defineNuxtConfig({
 	nitro: {
 		preset: 'vercel',
 	},
+	routeRules: {
+		'/catalog/**': { isr: 900 },
+	},
 	components: [
 		{
 			path: '~/components',

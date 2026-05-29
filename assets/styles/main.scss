@@ -6,3 +6,14 @@
 @import './base/utils';
 @import './base/base';
 @import './base/swiper';
+
+.catalog-page {
+	h2.title {
+		font-size: 28px;
+		line-height: 110%;
+
+		@include ultrahd {
+			font-size: 32px;
+		}
+	}
+}
