@@ -20,7 +20,7 @@ export default defineNuxtConfig({
 		preset: 'vercel',
 	},
 	routeRules: {
-		'/catalog/**': { isr: 900 },
+		'/catalog/**': { isr: 60 * 60 * 24 * 7 },
 	},
 	components: [
 		{

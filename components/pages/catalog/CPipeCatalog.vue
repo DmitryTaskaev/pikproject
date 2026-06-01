@@ -12,7 +12,7 @@ import {
 const config = useRuntimeConfig()
 
 const { data: productsTreeData } = await useLocalizedAsyncData(
-	'productsTree-catalog',
+	'productsTree',
 	lang =>
 		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
 			query: { lang },

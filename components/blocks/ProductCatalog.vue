@@ -151,7 +151,7 @@ const { isBorder } = defineProps<ProductCatalogProps>()
 
 const config = useRuntimeConfig()
 const { data: productsData } = await useLocalizedAsyncData(
-	'productsCatalog',
+	'productsTree',
 	lang =>
 		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
 			query: { lang },

@@ -143,9 +143,13 @@ const { data: treeData } = await useLocalizedAsyncData('productsTree', lang =>
 	}),
 )
 
-const pathIsSection = computed(() => {
+const currentPathNode = computed(() => {
 	const tree = treeData.value?.data?.TREE || []
-	return Boolean(findSectionByPath(tree, pathSegments.value))
+	return findSectionByPath(tree, pathSegments.value)
+})
+
+const pathIsSection = computed(() => {
+	return Boolean(currentPathNode.value)
 })
 
 const viewNodeForItem = computed(() => {
@@ -158,11 +162,16 @@ const { data: sectionData } = await useLocalizedAsyncData(
 	() => `catalog-section-${pathString.value}`,
 	async lang => {
 		if (!pathString.value) return null
-		const primary = await $fetch<ProductSectionDetailResponse>(
-			`${config.app.baseURL}api/products`,
-			{ query: { path: pathString.value, lang } },
-		)
-		if (pathIsSection.value) return primary
+
+		if (pathIsSection.value && currentPathNode.value?.SECTION?.ID) {
+			return await $fetch<ProductSectionDetailResponse>(
+				`${config.app.baseURL}api/products`,
+				{
+					query: { section_id: currentPathNode.value.SECTION.ID, lang },
+				},
+			)
+		}
+
 		if (itemCode.value && viewNodeForItem.value?.SECTION?.ID) {
 			const byId = await $fetch<ProductSectionDetailResponse>(
 				`${config.app.baseURL}api/products`,
@@ -172,6 +181,11 @@ const { data: sectionData } = await useLocalizedAsyncData(
 			)
 			if ((byId?.data?.ITEMS || []).length > 0) return byId
 		}
+
+		const primary = await $fetch<ProductSectionDetailResponse>(
+			`${config.app.baseURL}api/products`,
+			{ query: { path: pathString.value, lang } },
+		).catch(() => null)
 		const primaryItems = primary?.data?.ITEMS || []
 		const hasPrimarySection = Boolean(primary?.data?.SECTION)
 		const shouldFallback =
@@ -180,10 +194,19 @@ const { data: sectionData } = await useLocalizedAsyncData(
 			sectionPathForItem.value !== pathString.value &&
 			(!hasPrimarySection || primaryItems.length === 0)
 		if (shouldFallback) {
+			if (viewNodeForItem.value?.SECTION?.ID) {
+				return $fetch<ProductSectionDetailResponse>(
+					`${config.app.baseURL}api/products`,
+					{
+						query: { section_id: viewNodeForItem.value.SECTION.ID, lang },
+					},
+				)
+			}
+
 			return $fetch<ProductSectionDetailResponse>(
 				`${config.app.baseURL}api/products`,
 				{ query: { path: sectionPathForItem.value, lang } },
-			)
+			).catch(() => null)
 		}
 		return primary
 	},
