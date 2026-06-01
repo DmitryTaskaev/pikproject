@@ -117,6 +117,19 @@ export const decodeHtml = (value: string) => {
 		.replace(/&amp;/g, '&')
 }
 
+export const normalizeHtmlContent = (value?: string) => {
+	if (!value) return ''
+
+	let decoded = value
+	for (let i = 0; i < 10; i++) {
+		const next = decodeHtml(decoded).replace(/&nbsp;/g, ' ')
+		if (next === decoded) break
+		decoded = next
+	}
+
+	return decoded.trim()
+}
+
 export const resolveImageSrc = (origin: string, src?: string) => {
 	if (!src) return ''
 	if (/^https?:\/\//.test(src)) return src

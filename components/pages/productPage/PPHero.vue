@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { normalizeHtmlContent } from '~/composables/products'
+
 interface MeasureItem {
 	title: string
 	value: string
@@ -51,7 +53,9 @@ const resolvedTitleLines = computed(() => {
 })
 
 const resolvedDescriptions = computed(() => {
-	return props.descriptions !== undefined ? props.descriptions : fallbackDescList
+	const descriptions =
+		props.descriptions !== undefined ? props.descriptions : fallbackDescList
+	return descriptions.map(item => normalizeHtmlContent(item))
 })
 
 const resolvedMeasures = computed(() => {

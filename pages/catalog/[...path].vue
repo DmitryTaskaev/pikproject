@@ -11,6 +11,7 @@ import {
 	chunkArray,
 	collectListPageProperties,
 	decodeHtml,
+	normalizeHtmlContent,
 	mapListPageAggregates,
 	mapListPageValues,
 	normalizePathSegments,
@@ -614,14 +615,7 @@ const slides = computed(() => {
 
 const heroTitle = computed(() => section.value?.NAME || '')
 const normalizeSectionDescription = (value?: string) => {
-	if (!value) return ''
-	let decoded = value
-	for (let i = 0; i < 3; i++) {
-		const next = decodeHtml(decoded).replace(/&nbsp;/g, ' ')
-		if (next === decoded) break
-		decoded = next
-	}
-	return decoded.trim()
+	return normalizeHtmlContent(value)
 }
 
 const heroDescriptions = computed(() => {
@@ -995,7 +989,7 @@ const itemCatalogTitle = computed(() => {
 const itemHeroTitle = computed(() => currentItem.value?.NAME || '')
 const itemHeroDesc = computed(() =>
 	currentItem.value?.PREVIEW_TEXT
-		? decodeHtml(currentItem.value.PREVIEW_TEXT)
+		? normalizeHtmlContent(currentItem.value.PREVIEW_TEXT)
 		: normalizeSectionDescription(inheritedDiametrSection.value?.DESCRIPTION),
 )
 
