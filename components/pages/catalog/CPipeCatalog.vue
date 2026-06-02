@@ -17,6 +17,7 @@ const { data: productsTreeData } = await useLocalizedAsyncData(
 		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
 			query: { lang },
 		}),
+	{ deep: false },
 )
 
 const flattenItems = (

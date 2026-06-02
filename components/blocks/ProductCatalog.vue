@@ -156,6 +156,7 @@ const { data: productsData } = await useLocalizedAsyncData(
 		$fetch<ProductsTreeResponse>(`${config.app.baseURL}api/products`, {
 			query: { lang },
 		}),
+	{ deep: false },
 )
 
 const makeSectionHref = (section: ProductSectionNode, path: string[]) => {

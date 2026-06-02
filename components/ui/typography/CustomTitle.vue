@@ -20,9 +20,6 @@ const classes = computed(() => {
 	if (props.mode) {
 		base.push(`title_${props.mode}`)
 	}
-	if (props.mode === 'xxl') {
-		base.push('to-animate')
-	}
 	if (props.class) {
 		base.push(...(Array.isArray(props.class) ? props.class : [props.class]))
 	}

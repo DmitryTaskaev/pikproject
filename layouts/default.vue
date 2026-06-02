@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { nextTick, onMounted, watch } from 'vue'
 
 const { initModals } = useModals()
 const { initAnimation } = useAnimations()
+const route = useRoute()
 
 onMounted(() => {
 	initModals()
 	initAnimation()
 })
+
+watch(
+	() => route.fullPath,
+	async () => {
+		await nextTick()
+		initAnimation()
+	},
+)
 </script>
 
 <template>

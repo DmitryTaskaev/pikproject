@@ -63,6 +63,7 @@ const { data: servicesData } = await useLocalizedAsyncData(
 		$fetch<ServicesResponse>(`${config.app.baseURL}api/services`, {
 			query: { lang },
 		}),
+	{ deep: false },
 )
 
 const servicesList = computed(() => {
